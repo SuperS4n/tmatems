@@ -27,7 +27,8 @@ public class InterceptorConfig extends WebMvcConfigurationSupport {
                 //不拦截的url
                 .excludePathPatterns("/admin/login")
                 .excludePathPatterns("/student/login")
-                .excludePathPatterns("/teacher/login");
+                .excludePathPatterns("/teacher/login")
+                .excludePathPatterns("/registered");;
         super.addInterceptors(registry);
     }
 }

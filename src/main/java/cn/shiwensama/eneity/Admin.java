@@ -1,9 +1,10 @@
 package cn.shiwensama.eneity;
 
-import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -46,11 +47,6 @@ public class Admin implements Serializable {
      * 学院编号，0为超级管理员
      */
     private Integer college;
-
-    /**
-     * 头像
-     */
-    private String header;
 
     /**
      * 逻辑删除，0否1是

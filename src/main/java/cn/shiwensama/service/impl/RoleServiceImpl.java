@@ -38,4 +38,17 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     public List<Integer> queryRolePermissionIdsByRid(Integer roleId) {
         return this.getBaseMapper().queryRolePermissionIdsByRid(roleId);
     }
+
+    /**
+     * 保存用户和角色的关系
+     * @param uid
+     * @param rid
+     */
+    @Override
+    public void insertUserRole(String uid, Integer rid) {
+
+        this.getBaseMapper().insertUserRole(uid,rid);
+    }
+
+
 }

@@ -29,4 +29,11 @@ public interface RoleService extends IService<Role> {
      */
     List<Integer> queryRolePermissionIdsByRid(Integer roleId);
 
+    /**
+     * 保存用户和角色的关系
+     * @param uid
+     * @param rid
+     */
+    void insertUserRole(String uid, Integer rid);
+
 }

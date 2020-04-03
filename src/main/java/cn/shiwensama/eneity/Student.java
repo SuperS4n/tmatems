@@ -66,11 +66,6 @@ public class Student implements Serializable {
     private String classes;
 
     /**
-     * 头像
-     */
-    private String header;
-
-    /**
      * 逻辑删除，0否1是
      */
     private Integer deleted;

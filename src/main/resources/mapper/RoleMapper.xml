@@ -2,6 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.shiwensama.mapper.RoleMapper">
 
+    <!-- 添加之前先清空做初始化   -->
+    <delete id="deleteRolePermissionByRid">
+        delete from role_permission where rid=#{value}
+    </delete>
+
     <!--查询当前用户拥有的角色ID集合-->
     <select id="queryUserRoleIdsByUid" parameterType="string" resultType="java.lang.Integer">
         select rid from role_user where uid = #{id}
@@ -11,4 +16,10 @@
     <select id="queryRolePermissionIdsByRid" resultType="java.lang.Integer">
         select pid from role_permission where rid =#{value}
     </select>
+
+    <!--保存用户和角色的关系-->
+    <insert id="insertUserRole">
+        insert into role_user(rid,uid) values (#{rid},#{uid})
+    </insert>
+
 </mapper>
