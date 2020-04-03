@@ -16,7 +16,7 @@ public enum ResultEnum {
 
     //操作相关
     SUCCESS(200,"操作成功"),
-    ERROR(400,"操作失败"),
+    ERROR(400,"操作失败,接口异常"),
     DATA_NOT_FOUND(4001,"查询失败"),
     PARAMS_ERROR(4002,"参数错误"),
 

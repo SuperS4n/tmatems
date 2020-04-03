@@ -1,5 +1,6 @@
 package cn.shiwensama.exception;
 
+import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.UnauthorizedException;
@@ -18,12 +19,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Slf4j
 public class SysExceptionAdvice {
 
-    // @ResponseBody
-    // @ExceptionHandler(SysException.class)
-    // public Result<Object> exceptionHandler(SysException exception) {
-    //     log.error("统一异常处理：",exception);
-    //     return new Result<>(exception.getErrorCode(),exception.getMessage());
-    // }
+    @ResponseBody
+    @ExceptionHandler(SysException.class)
+    public Result<Object> exceptionHandler(SysException exception) {
+        log.error("统一异常处理：",exception);
+        return new Result<>(ResultEnum.ERROR);
+    }
 
     /**
      * shiro权限不足,捕获异常提示

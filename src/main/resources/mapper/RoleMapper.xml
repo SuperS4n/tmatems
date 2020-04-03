@@ -3,8 +3,8 @@
 <mapper namespace="cn.shiwensama.mapper.RoleMapper">
 
     <!-- 添加之前先清空做初始化   -->
-    <delete id="deleteRolePermissionByRid">
-        delete from role_permission where rid=#{value}
+    <delete id="deleteRoleUserByUid">
+        delete from role_user where uid=#{value}
     </delete>
 
     <!--查询当前用户拥有的角色ID集合-->

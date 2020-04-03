@@ -3,7 +3,6 @@ package cn.shiwensama.mapper;
 import cn.shiwensama.eneity.Role;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -17,10 +16,10 @@ import java.util.List;
 public interface RoleMapper extends BaseMapper<Role> {
 
     /**
-     * 根据角色ID 删除sys_role_permission表中的数据
+     * 根据用户ID 删除role_user表中的数据
      * @param id
      */
-    void deleteRolePermissionByRid(Serializable id);
+    void deleteRoleUserByUid(String id);
 
     /**
      * 查询当前用户拥有的角色ID集合

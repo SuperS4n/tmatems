@@ -50,5 +50,14 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         this.getBaseMapper().insertUserRole(uid,rid);
     }
 
+    /**
+     * 根据用户ID 删除role_user表中的数据
+     * @param id
+     */
+    @Override
+    public void deleteRoleUserByUid(String id) {
+        this.getBaseMapper().deleteRoleUserByUid(id);
+    }
+
 
 }

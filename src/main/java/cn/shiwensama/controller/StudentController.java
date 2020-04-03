@@ -118,15 +118,16 @@ public class StudentController {
      * @param student
      * @return
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/registered", method = RequestMethod.POST)
     public Result<Object> addStudent(@RequestBody Student student) {
+        //判断是否重名 交由前端处理
 
         try {
-            //逻辑删除为 0
+            //逻辑删除置为 0
             student.setDeleted(0);
-
             this.studentService.save(student);
+            //在role_usr表中添加用户角色的关系连接
             this.roleService.insertUserRole(student.getId(), 2);
             return new Result<>("注册成功");
         } catch (Exception e) {
@@ -139,18 +140,19 @@ public class StudentController {
     /**
      * 修改学生
      *
-     * @param Student
+     * @param student
      * @return
      */
     @RequestMapping(value = "/student", method = RequestMethod.PUT)
-    public Result<Object> updateStudent(@RequestBody Student Student) {
+    @Transactional(rollbackFor = Exception.class)
+    public Result<Object> updateStudent(@RequestBody Student student) {
 
         try {
-            this.studentService.updateById(Student);
+            this.studentService.updateById(student);
             return new Result<>("修改成功");
         } catch (Exception e) {
             e.printStackTrace();
-            return new Result<>(ResultEnum.ERROR.getCode(), "修改失败");
+            throw  new RuntimeException();
         }
     }
 
@@ -160,12 +162,38 @@ public class StudentController {
      * @param id
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/student/{id}", method = RequestMethod.DELETE)
     public Result<Object> deleteStudent(@PathVariable String id) {
 
-        studentService.removeById(id);
+        try {
+            studentService.removeById(id);
+            this.roleService.deleteRoleUserByUid(id);
+            return new Result<>("删除成功");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
+    }
 
-        return new Result<>("删除成功");
+    /**
+     * 根据账号查询学生
+     * @param username
+     * @return
+     */
+    @RequestMapping(value = "/registered/{username}",method = RequestMethod.GET)
+    public Result<Object> getOneStudent(@PathVariable String username) {
+        QueryWrapper<Student> qw = new QueryWrapper<>();
+        qw.eq("username",username);
+        Student one = this.studentService.getOne(qw);
+
+        if(one != null) {
+            //已存在账号
+            return new Result<>(1);
+        }else {
+            //账号不重复，可以注册
+            return new Result<>(0);
+        }
     }
 }
 

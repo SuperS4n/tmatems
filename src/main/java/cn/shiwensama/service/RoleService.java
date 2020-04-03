@@ -36,4 +36,10 @@ public interface RoleService extends IService<Role> {
      */
     void insertUserRole(String uid, Integer rid);
 
+    /**
+     * 根据用户ID 删除role_user表中的数据
+     * @param id
+     */
+    void deleteRoleUserByUid(String id);
+
 }
