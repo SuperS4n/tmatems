@@ -4,6 +4,7 @@ package cn.shiwensama.controller;
 import cn.shiwensama.eneity.Teacher;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.enums.StateEnum;
+import cn.shiwensama.exception.SysException;
 import cn.shiwensama.service.RoleService;
 import cn.shiwensama.service.TeacherService;
 import cn.shiwensama.token.UsernamePasswordToken;
@@ -68,8 +69,7 @@ public class TeacherController {
         try {
             subject.login(authenticationToken);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new Result<>(ResultEnum.PARAMS_ERROR.getCode(), "用户名或密码错误！");
+            throw new SysException(ResultEnum.PARAMS_ERROR.getCode(), "用户名或密码错误！");
         }
         //3.登录成功,设置token
         String jwt = jwtUtils.createJWT(teacher.getId(), teacher.getUsername());
@@ -79,6 +79,7 @@ public class TeacherController {
 
     /**
      * 分页查询教师
+     *
      * @param teacherVo
      * @param request
      * @return
@@ -109,7 +110,7 @@ public class TeacherController {
      */
     @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/teacher", method = RequestMethod.POST)
-    public Result<Object> addStudent(@RequestBody Teacher teacher,HttpServletRequest request) {
+    public Result<Object> addStudent(@RequestBody Teacher teacher, HttpServletRequest request) {
         //判断是否重名 交由前端处理
 
         try {
@@ -121,8 +122,7 @@ public class TeacherController {
             this.roleService.insertUserRole(teacher.getId(), 3);
             return new Result<>("添加成功");
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException();
+            throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
         }
     }
 }

@@ -18,6 +18,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Slf4j
 public class SysExceptionAdvice {
 
+    /**
+     * controller 加上@Transactional做回滚 要手动抛出RuntimeException,
+     * 在这里捕获
+     * @param exception
+     * @return
+     */
     @ResponseBody
     @ExceptionHandler(SysException.class)
     public Result<Object> exceptionHandler(SysException exception) {
@@ -36,16 +42,5 @@ public class SysExceptionAdvice {
         return new Result<>("权限不足","/error");
     }
 
-    /**
-     * controller 加上@Transactional做回滚 要手动抛出RuntimeException,
-     * 在这里捕获
-     * @param e
-     * @return
-     */
-    @ResponseBody
-    @ExceptionHandler(RuntimeException.class)
-    public Result<Object> getRuntimeException(Exception e) {
-        log.error("出现异常：",e);
-        return new Result<>(400,"操作失败，接口异常");
-    }
+
 }

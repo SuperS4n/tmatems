@@ -5,6 +5,7 @@ import cn.shiwensama.eneity.College;
 import cn.shiwensama.eneity.Student;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.enums.StateEnum;
+import cn.shiwensama.exception.SysException;
 import cn.shiwensama.service.CollegeService;
 import cn.shiwensama.service.RoleService;
 import cn.shiwensama.service.StudentService;
@@ -71,8 +72,7 @@ public class StudentController {
         try {
             subject.login(authenticationToken);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new Result<>(ResultEnum.PARAMS_ERROR.getCode(), "用户名或密码错误！");
+            throw  new SysException(ResultEnum.PARAMS_ERROR.getCode(), "用户名或密码错误！");
         }
         //3.登录成功,设置token
         String jwt = jwtUtils.createJWT(student.getId(), student.getUsername());
@@ -133,8 +133,7 @@ public class StudentController {
             this.roleService.insertUserRole(student.getId(), 2);
             return new Result<>("注册成功");
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException();
+            throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
         }
     }
 
@@ -153,8 +152,7 @@ public class StudentController {
             this.studentService.updateById(student);
             return new Result<>("修改成功");
         } catch (Exception e) {
-            e.printStackTrace();
-            throw  new RuntimeException();
+            throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
         }
     }
 
@@ -173,8 +171,7 @@ public class StudentController {
             this.roleService.deleteRoleUserByUid(id);
             return new Result<>("删除成功");
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException();
+            throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
         }
     }
 
