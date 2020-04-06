@@ -1,6 +1,5 @@
 package cn.shiwensama.exception;
 
-import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.UnauthorizedException;
@@ -23,7 +22,7 @@ public class SysExceptionAdvice {
     @ExceptionHandler(SysException.class)
     public Result<Object> exceptionHandler(SysException exception) {
         log.error("统一异常处理：",exception);
-        return new Result<>(ResultEnum.ERROR);
+        return new Result<>(exception.getErrorCode(),exception.getMessage());
     }
 
     /**

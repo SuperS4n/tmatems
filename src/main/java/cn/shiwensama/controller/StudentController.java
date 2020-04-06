@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,19 +88,20 @@ public class StudentController {
      * @return
      */
     @RequestMapping(value = "/student", method = RequestMethod.GET)
-    public Result<Object> getAllStudent(StudentVo studentVo) {
+    public Result<Object> getAllStudent(StudentVo studentVo, HttpServletRequest request) {
         IPage<Student> page = new Page<>(studentVo.getPagenum(), studentVo.getPagesize());
 
         QueryWrapper<Student> qw = new QueryWrapper<>();
         qw.eq(StringUtils.isNotBlank(studentVo.getName()), "name", studentVo.getName());
         qw.eq(StringUtils.isNotBlank(studentVo.getClasses()), "classes", studentVo.getClasses());
 
+        Integer collegeId = (Integer) request.getAttribute("collegeId");
+        qw.eq(collegeId != null && collegeId != 0, "college", request.getAttribute("collegeId"));
         this.studentService.page(page, qw);
 
         //循环设置学院名称
         List<Student> students = page.getRecords();
         for (Student student : students) {
-            Integer collegeId = student.getCollege();
             if (collegeId != null) {
                 College college = collegeService.getById(collegeId);
                 student.setCollegeName(college.getName());

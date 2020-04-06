@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * @author: shiwensama
@@ -47,6 +48,29 @@ public class JwtUtils {
             jwtBuilder.setExpiration(new Date(exp));
         }
 
+        //返回token
+        return jwtBuilder.compact();
+    }
+
+    /**
+     * 设置认证token
+     */
+    public String createJWT(String id, String subject, Map<String,Object> map) {
+
+        long now = System.currentTimeMillis();
+        //失效时间
+        long exp = now + ttl;
+        //创建jwtBuilder
+        JwtBuilder jwtBuilder = Jwts.builder().setId(id)
+                .setSubject(subject).setIssuedAt(new Date())
+                .signWith(SignatureAlgorithm.HS256, key);
+
+        if (ttl > 0) {
+            jwtBuilder.setExpiration(new Date(exp));
+        }
+        for (Map.Entry<String,Object> entry:map.entrySet()) {
+            jwtBuilder.claim(entry.getKey(),entry.getValue());
+        }
         //返回token
         return jwtBuilder.compact();
     }
