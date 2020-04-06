@@ -20,10 +20,7 @@ import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -110,7 +107,7 @@ public class TeacherController {
      */
     @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/teacher", method = RequestMethod.POST)
-    public Result<Object> addStudent(@RequestBody Teacher teacher, HttpServletRequest request) {
+    public Result<Object> addteacher(@RequestBody Teacher teacher, HttpServletRequest request) {
         //判断是否重名 交由前端处理
 
         try {
@@ -123,6 +120,63 @@ public class TeacherController {
             return new Result<>("添加成功");
         } catch (Exception e) {
             throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
+        }
+    }
+
+    /**
+     * 修改教师
+     *
+     * @param teacher
+     * @return
+     */
+    @RequestMapping(value = "/teacher", method = RequestMethod.PUT)
+    @Transactional(rollbackFor = Exception.class)
+    public Result<Object> updateTeacher(@RequestBody Teacher teacher) {
+
+        try {
+            this.teacherService.updateById(teacher);
+            return new Result<>("修改成功");
+        } catch (Exception e) {
+            throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
+        }
+    }
+
+    /**
+     * 删除教师
+     *
+     * @param id
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @RequestMapping(value = "/teacher/{id}", method = RequestMethod.DELETE)
+    public Result<Object> deleteTeacher(@PathVariable String id) {
+
+        try {
+            teacherService.removeById(id);
+            this.roleService.deleteRoleUserByUid(id);
+            return new Result<>("删除成功");
+        } catch (Exception e) {
+            throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
+        }
+    }
+
+    /**
+     * 根据账号查询教师
+     * @param username
+     * @return
+     */
+    @RequestMapping(value = "/registered/{username}",method = RequestMethod.GET)
+    public Result<Object> getOneTeacher(@PathVariable String username) {
+        QueryWrapper<Teacher> qw = new QueryWrapper<>();
+        qw.eq("username",username);
+        Teacher one = this.teacherService.getOne(qw);
+
+        if(one != null) {
+            //已存在账号
+            return new Result<>(1);
+        }else {
+            //账号不重复，可以注册
+            return new Result<>(0);
         }
     }
 }
