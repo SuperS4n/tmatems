@@ -19,6 +19,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -87,6 +88,7 @@ public class StudentController {
      * @param studentVo
      * @return
      */
+    @RequiresPermissions("student:view")
     @RequestMapping(value = "/student", method = RequestMethod.GET)
     public Result<Object> getAllStudent(StudentVo studentVo, HttpServletRequest request) {
         IPage<Student> page = new Page<>(studentVo.getPagenum(), studentVo.getPagesize());
@@ -120,6 +122,7 @@ public class StudentController {
      * @param student
      * @return
      */
+    @RequiresPermissions("student:create")
     @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/registered", method = RequestMethod.POST)
     public Result<Object> addStudent(@RequestBody Student student) {
@@ -144,6 +147,7 @@ public class StudentController {
      * @param student
      * @return
      */
+    @RequiresPermissions("student:update")
     @RequestMapping(value = "/student", method = RequestMethod.PUT)
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> updateStudent(@RequestBody Student student) {
@@ -162,6 +166,7 @@ public class StudentController {
      * @param id
      * @return
      */
+    @RequiresPermissions("student:delete")
     @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/student/{id}", method = RequestMethod.DELETE)
     public Result<Object> deleteStudent(@PathVariable String id) {
@@ -180,6 +185,7 @@ public class StudentController {
      * @param username
      * @return
      */
+    @RequiresPermissions("student:view")
     @RequestMapping(value = "/registered/{username}",method = RequestMethod.GET)
     public Result<Object> getOneStudent(@PathVariable String username) {
         QueryWrapper<Student> qw = new QueryWrapper<>();

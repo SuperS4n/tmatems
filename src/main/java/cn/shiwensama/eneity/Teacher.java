@@ -1,5 +1,7 @@
 package cn.shiwensama.eneity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -49,8 +51,15 @@ public class Teacher implements Serializable {
     private Integer college;
 
     /**
+     * 学院名称
+     */
+    @TableField(exist = false)
+    private String collegeName;
+
+    /**
      * 逻辑删除，0否1是
      */
+    @TableLogic
     private Integer deleted;
 
 

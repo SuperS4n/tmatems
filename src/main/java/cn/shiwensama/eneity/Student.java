@@ -1,6 +1,7 @@
 package cn.shiwensama.eneity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -68,6 +69,7 @@ public class Student implements Serializable {
     /**
      * 逻辑删除，0否1是
      */
+    @TableLogic
     private Integer deleted;
 
 

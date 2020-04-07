@@ -1,9 +1,13 @@
 package cn.shiwensama.eneity;
 
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
 
 /**
  * <p>
@@ -23,6 +27,7 @@ public class College implements Serializable {
     /**
      * ID
      */
+    @TableId(value = "id",type = IdType.AUTO)
     private Integer id;
 
     /**
@@ -33,6 +38,7 @@ public class College implements Serializable {
     /**
      * 逻辑删除
      */
+    @TableLogic
     private Integer deleted;
 
 

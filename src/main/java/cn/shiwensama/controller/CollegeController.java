@@ -1,16 +1,23 @@
 package cn.shiwensama.controller;
 
 
+import cn.shiwensama.eneity.Admin;
 import cn.shiwensama.eneity.College;
+import cn.shiwensama.eneity.Student;
+import cn.shiwensama.eneity.Teacher;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.exception.SysException;
+import cn.shiwensama.service.AdminService;
 import cn.shiwensama.service.CollegeService;
+import cn.shiwensama.service.StudentService;
+import cn.shiwensama.service.TeacherService;
 import cn.shiwensama.utils.Result;
 import cn.shiwensama.vo.CollegeVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -33,6 +40,15 @@ public class CollegeController {
     @Autowired
     private CollegeService collegeService;
 
+    @Autowired
+    private TeacherService teacherService;
+
+    @Autowired
+    private AdminService adminService;
+
+    @Autowired
+    private StudentService studentService;
+
     /**
      * 分页查询学院
      *
@@ -40,12 +56,13 @@ public class CollegeController {
      * @param request
      * @return
      */
+    @RequiresPermissions("college:view")
     @RequestMapping(value = "/college", method = RequestMethod.GET)
     public Result<Object> getAllCollege(CollegeVo collegeVo, HttpServletRequest request) {
         IPage<College> page = new Page<>(collegeVo.getPagenum(), collegeVo.getPagesize());
 
         QueryWrapper<College> qw = new QueryWrapper<>();
-        qw.eq(StringUtils.isNotBlank(collegeVo.getName()), "name", collegeVo.getName());
+        qw.like(StringUtils.isNotBlank(collegeVo.getName()), "name", collegeVo.getName());
 
         this.collegeService.page(page, qw);
 
@@ -61,6 +78,7 @@ public class CollegeController {
      * @param college
      * @return
      */
+    @RequiresPermissions("college:create")
     @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/college", method = RequestMethod.POST)
     public Result<Object> addCollege(@RequestBody College college) {
@@ -84,6 +102,7 @@ public class CollegeController {
      * @param college
      * @return
      */
+    @RequiresPermissions("college:update")
     @RequestMapping(value = "/college", method = RequestMethod.PUT)
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> updateCollege(@RequestBody College college) {
@@ -102,12 +121,29 @@ public class CollegeController {
      * @param id
      * @return
      */
+    @RequiresPermissions("college:delete")
     @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/college/{id}", method = RequestMethod.DELETE)
     public Result<Object> deleteCollege(@PathVariable String id) {
 
         try {
+            //删除学院
             collegeService.removeById(id);
+
+            //删除学院下的教师
+            QueryWrapper<Teacher> qw = new QueryWrapper<>();
+            qw.eq("college",id);
+            teacherService.remove(qw);
+
+            //删除学院下的学生
+            QueryWrapper<Student> sqw = new QueryWrapper<>();
+            qw.eq("college",id);
+            studentService.remove(sqw);
+
+            //删除学院下的管理员
+            QueryWrapper<Admin> aqw = new QueryWrapper<>();
+            qw.eq("college",id);
+            adminService.remove(aqw);
 
             return new Result<>("删除成功");
         } catch (Exception e) {
@@ -120,7 +156,8 @@ public class CollegeController {
      * @param name
      * @return
      */
-    @RequestMapping(value = "/registered/{name}",method = RequestMethod.GET)
+    @RequiresPermissions("college:view")
+    @RequestMapping(value = "/college/{name}",method = RequestMethod.GET)
     public Result<Object> getOneCollege(@PathVariable String name) {
         QueryWrapper<College> qw = new QueryWrapper<>();
         qw.eq("name",name);
@@ -128,10 +165,10 @@ public class CollegeController {
 
         if(one != null) {
             //已存在账号
-            return new Result<>(1);
+            return new Result<>("查询成功",1);
         }else {
             //账号不重复，可以注册
-            return new Result<>(0);
+            return new Result<>("查询成功",0);
         }
     }
 

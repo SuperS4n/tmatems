@@ -1,10 +1,12 @@
 package cn.shiwensama.controller;
 
 
+import cn.shiwensama.eneity.College;
 import cn.shiwensama.eneity.Teacher;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.enums.StateEnum;
 import cn.shiwensama.exception.SysException;
+import cn.shiwensama.service.CollegeService;
 import cn.shiwensama.service.RoleService;
 import cn.shiwensama.service.TeacherService;
 import cn.shiwensama.token.UsernamePasswordToken;
@@ -17,6 +19,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,6 +50,9 @@ public class TeacherController {
     @Autowired
     private RoleService roleService;
 
+    @Autowired
+    private CollegeService collegeService;
+
     /**
      * 登录方法
      *
@@ -53,7 +60,7 @@ public class TeacherController {
      * @return
      */
     @RequestMapping(value = "teacher/login", method = RequestMethod.POST)
-    private Result<Object> login(@RequestBody Teacher teacher) {
+    public Result<Object> login(@RequestBody Teacher teacher) {
         //1.先判断前端传过来的登录参数是否正确
         if (teacher == null || StringUtils.isBlank(teacher.getUsername()) || StringUtils.isBlank(teacher.getPassword())) {
             return new Result<>(ResultEnum.PARAMS_ERROR.getCode(), "用户名或密码错误！");
@@ -81,6 +88,7 @@ public class TeacherController {
      * @param request
      * @return
      */
+    @RequiresPermissions("teacher:view")
     @RequestMapping(value = "/teacher", method = RequestMethod.GET)
     public Result<Object> getAllTeacher(TeacherVo teacherVo, HttpServletRequest request) {
         IPage<Teacher> page = new Page<>(teacherVo.getPagenum(), teacherVo.getPagesize());
@@ -93,9 +101,18 @@ public class TeacherController {
 
         this.teacherService.page(page, qw);
 
+        //循环设置学院名称
+        List<Teacher> teachers = page.getRecords();
+        for (Teacher teacher : teachers) {
+            Integer teacherCollege = teacher.getCollege();
+            if (teacherCollege != null) {
+                College college = collegeService.getById(teacherCollege);
+                teacher.setCollegeName(college.getName());
+            }
+        }
         Map<String, Object> resultMap = new HashMap<>(4);
         resultMap.put("total", page.getTotal());
-        resultMap.put("teachers", page.getRecords());
+        resultMap.put("teachers", teachers);
         return new Result<>("分页查询教师成功", resultMap);
     }
 
@@ -105,15 +122,16 @@ public class TeacherController {
      * @param teacher
      * @return
      */
+    @RequiresPermissions("teacher:create")
     @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/teacher", method = RequestMethod.POST)
-    public Result<Object> addteacher(@RequestBody Teacher teacher, HttpServletRequest request) {
+    public Result<Object> addTeacher(@RequestBody Teacher teacher) {
         //判断是否重名 交由前端处理
 
         try {
             //逻辑删除置为 0
             teacher.setDeleted(0);
-            teacher.setCollege((Integer) request.getAttribute("collegeId"));
+
             this.teacherService.save(teacher);
             //在role_usr表中添加用户角色的关系连接
             this.roleService.insertUserRole(teacher.getId(), 3);
@@ -129,6 +147,7 @@ public class TeacherController {
      * @param teacher
      * @return
      */
+    @RequiresPermissions("teacher:update")
     @RequestMapping(value = "/teacher", method = RequestMethod.PUT)
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> updateTeacher(@RequestBody Teacher teacher) {
@@ -147,6 +166,7 @@ public class TeacherController {
      * @param id
      * @return
      */
+    @RequiresPermissions("teacher:delete")
     @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/teacher/{id}", method = RequestMethod.DELETE)
     public Result<Object> deleteTeacher(@PathVariable String id) {
@@ -165,7 +185,8 @@ public class TeacherController {
      * @param username
      * @return
      */
-    @RequestMapping(value = "/registered/{username}",method = RequestMethod.GET)
+    @RequiresPermissions("teacher:view")
+    @RequestMapping(value = "/teacher/{username}",method = RequestMethod.GET)
     public Result<Object> getOneTeacher(@PathVariable String username) {
         QueryWrapper<Teacher> qw = new QueryWrapper<>();
         qw.eq("username",username);

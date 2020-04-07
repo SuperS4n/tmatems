@@ -26,4 +26,14 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: uuid
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值（默认 0）
     banner: true
+# 解决中文乱码的问题
+  spring:
+    http:
+      encoding:
+        force: true
+        charset: UTF-8
+        enabled: true
+        uri-encoding: UTF-8

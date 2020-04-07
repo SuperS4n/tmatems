@@ -19,6 +19,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +55,7 @@ public class AdminController {
      * @return
      */
     @RequestMapping(value = "/admin/login", method = RequestMethod.POST)
-    private Result<Object> login(@RequestBody Admin admin) {
+    public Result<Object> login(@RequestBody Admin admin) {
         //1.先判断前端传过来的登录参数是否正确
         if (admin == null || StringUtils.isBlank(admin.getUsername()) || StringUtils.isBlank(admin.getPassword())) {
             return new Result<>(ResultEnum.PARAMS_ERROR.getCode(), "用户名或密码错误！");
@@ -88,6 +89,7 @@ public class AdminController {
      * @param adminVo
      * @return
      */
+    @RequiresPermissions("admin:view")
     @RequestMapping(value = "/admin", method = RequestMethod.GET)
     public Result<Object> getAllAdmin(AdminVo adminVo) {
         IPage<Admin> page = new Page<>(adminVo.getPagenum(), adminVo.getPagesize());
@@ -109,6 +111,7 @@ public class AdminController {
      * @param admin
      * @return
      */
+    @RequiresPermissions("admin:create")
     @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/admin", method = RequestMethod.POST)
     public Result<Object> addAdmin(@RequestBody Admin admin) {
@@ -133,6 +136,7 @@ public class AdminController {
      * @param admin
      * @return
      */
+    @RequiresPermissions("admin:update")
     @RequestMapping(value = "/admin", method = RequestMethod.PUT)
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> updateAdmin(@RequestBody Admin admin) {
@@ -151,6 +155,7 @@ public class AdminController {
      * @param id
      * @return
      */
+    @RequiresPermissions("admin:delete")
     @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/admin/{id}", method = RequestMethod.DELETE)
     public Result<Object> deleteAdmin(@PathVariable String id) {
@@ -169,7 +174,8 @@ public class AdminController {
      * @param username
      * @return
      */
-    @RequestMapping(value = "/registered/{username}",method = RequestMethod.GET)
+    @RequiresPermissions("admin:view")
+    @RequestMapping(value = "/admin/{username}",method = RequestMethod.GET)
     public Result<Object> getOneAdmin(@PathVariable String username) {
         QueryWrapper<Admin> qw = new QueryWrapper<>();
         qw.eq("username",username);
