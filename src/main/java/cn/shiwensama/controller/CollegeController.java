@@ -164,10 +164,9 @@ public class CollegeController {
         College one = this.collegeService.getOne(qw);
 
         if(one != null) {
-            //已存在账号
+            //已存在学院
             return new Result<>("查询成功",1);
         }else {
-            //账号不重复，可以注册
             return new Result<>("查询成功",0);
         }
     }

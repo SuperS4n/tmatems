@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.shiwensama.mapper.CourseMapper">
+
+    <!-- 根据课程ID 删除scourse表中的数据   -->
+    <delete id="deleteStudentCourse">
+        delete from scourse where cid=#{value}
+    </delete>
+
+    <!-- 根据课程ID 删除tcourse表中的数据   -->
+    <delete id="deleteTeacherCourse">
+        delete from tcourse where cid=#{value}
+    </delete>
+
+    <!--  课程开启评论  -->
+    <update id="openComment">
+        update course set isok = 1 where id = #{value}
+    </update>
+
+    <!--  课程插入教师课表  -->
+    <insert id="addTcourse">
+        insert into tcourse(cid,uid) values (#{cid},#{uid})
+    </insert>
+
+    <!--  课程插入学生课表  -->
+    <insert id="addScourse">
+        insert into scourse(cid,uid) values (#{cid},#{uid})
+    </insert>
+</mapper>
