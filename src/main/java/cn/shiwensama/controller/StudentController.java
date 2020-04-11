@@ -1,11 +1,13 @@
 package cn.shiwensama.controller;
 
 
+import cn.shiwensama.eneity.Classes;
 import cn.shiwensama.eneity.College;
 import cn.shiwensama.eneity.Student;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.enums.StateEnum;
 import cn.shiwensama.exception.SysException;
+import cn.shiwensama.service.ClassesService;
 import cn.shiwensama.service.CollegeService;
 import cn.shiwensama.service.RoleService;
 import cn.shiwensama.service.StudentService;
@@ -53,6 +55,9 @@ public class StudentController {
     @Autowired
     private RoleService roleService;
 
+    @Autowired
+    private ClassesService classesService;
+
     /**
      * 登录方法
      *
@@ -73,7 +78,7 @@ public class StudentController {
         try {
             subject.login(authenticationToken);
         } catch (Exception e) {
-            throw  new SysException(ResultEnum.PARAMS_ERROR.getCode(), "用户名或密码错误！");
+            throw new SysException(ResultEnum.PARAMS_ERROR.getCode(), "用户名或密码错误！");
         }
         //3.登录成功,设置token
         String jwt = jwtUtils.createJWT(student.getId(), student.getUsername());
@@ -95,18 +100,23 @@ public class StudentController {
 
         QueryWrapper<Student> qw = new QueryWrapper<>();
         qw.eq(StringUtils.isNotBlank(studentVo.getName()), "name", studentVo.getName());
-        qw.eq(StringUtils.isNotBlank(studentVo.getClasses()), "classes", studentVo.getClasses());
 
         Integer collegeId = (Integer) request.getAttribute("collegeId");
         qw.eq(collegeId != null && collegeId != 0, "college", request.getAttribute("collegeId"));
         this.studentService.page(page, qw);
 
-        //循环设置学院名称
+        //循环设置学院名称和班级名称
         List<Student> students = page.getRecords();
         for (Student student : students) {
-            if (collegeId != null) {
-                College college = collegeService.getById(collegeId);
+
+            Integer studentCollege = student.getCollege();
+            Integer studentClasses = student.getClasses();
+
+            if (studentCollege != null && studentClasses != null) {
+                College college = collegeService.getById(studentCollege);
+                Classes classes = classesService.getById(studentClasses);
                 student.setCollegeName(college.getName());
+                student.setClassesName(classes.getName());
             }
         }
 
@@ -182,20 +192,21 @@ public class StudentController {
 
     /**
      * 根据账号查询学生
+     *
      * @param username
      * @return
      */
     @RequiresPermissions("student:view")
-    @RequestMapping(value = "/registered/{username}",method = RequestMethod.GET)
+    @RequestMapping(value = "/registered/{username}", method = RequestMethod.GET)
     public Result<Object> getOneStudent(@PathVariable String username) {
         QueryWrapper<Student> qw = new QueryWrapper<>();
-        qw.eq("username",username);
+        qw.eq("username", username);
         Student one = this.studentService.getOne(qw);
 
-        if(one != null) {
+        if (one != null) {
             //已存在账号
             return new Result<>(1);
-        }else {
+        } else {
             //账号不重复，可以注册
             return new Result<>(0);
         }

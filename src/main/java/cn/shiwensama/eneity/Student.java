@@ -62,9 +62,15 @@ public class Student implements Serializable {
     private Integer level;
 
     /**
-     * 班级
+     * 班级id
      */
-    private String classes;
+    private Integer classes;
+
+    /**
+     * 班级名称
+     */
+    @TableField(exist = false)
+    private String classesName;
 
     /**
      * 逻辑删除，0否1是

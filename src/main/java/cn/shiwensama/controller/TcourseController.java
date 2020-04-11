@@ -39,7 +39,7 @@ public class TcourseController {
     private CourseService courseService;
 
     /**
-     * 学生分页查询课程
+     * 教师分页查询课程
      *
      * @param tcourseVo
      * @return
@@ -57,7 +57,6 @@ public class TcourseController {
         for (Tcourse tcours : tcourses) {
             Course course = this.courseService.getById(tcours.getCid());
             tcours.setName(course.getName());
-
         }
 
         Map<String, Object> resultMap = new HashMap<>(4);
