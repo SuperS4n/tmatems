@@ -196,7 +196,6 @@ public class StudentController {
      * @param username
      * @return
      */
-    @RequiresPermissions("student:view")
     @RequestMapping(value = "/registered/{username}", method = RequestMethod.GET)
     public Result<Object> getOneStudent(@PathVariable String username) {
         QueryWrapper<Student> qw = new QueryWrapper<>();
