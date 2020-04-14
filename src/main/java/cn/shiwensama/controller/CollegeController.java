@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -169,6 +170,17 @@ public class CollegeController {
         }else {
             return new Result<>("查询成功",0);
         }
+    }
+
+    /**
+     * 注册时，列出所有学院
+     * @return
+     */
+    @RequestMapping(value = "/loadAllCollege",method = RequestMethod.GET)
+    public Result<Object> loadAllCollege() {
+        List<College> collegeList = this.collegeService.list();
+
+        return new Result<>("查询成功",collegeList);
     }
 
 }

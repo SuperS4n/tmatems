@@ -25,12 +25,10 @@ public class InterceptorConfig extends WebMvcConfigurationSupport {
                 //拦截的url
                 .addPathPatterns("/**")
                 //不拦截的url
-                .excludePathPatterns("/admin/login")
-                .excludePathPatterns("/student/login")
-                .excludePathPatterns("/teacher/login")
+                .excludePathPatterns("/*/login")
                 .excludePathPatterns("/registered")
                 .excludePathPatterns("/registered/*")
-                .excludePathPatterns("/college/*");
+                .excludePathPatterns("/loadAllCollege");
 
         super.addInterceptors(registry);
     }

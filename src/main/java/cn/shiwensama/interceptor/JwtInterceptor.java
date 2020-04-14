@@ -36,7 +36,7 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
             try {
                 collegeId = claims.get("collegeId");
             } catch (Exception e) {
-                throw new SysException(400,"token无效");
+                throw new SysException(403,"token无效");
             }
 
             request.setAttribute("collegeId", collegeId);
