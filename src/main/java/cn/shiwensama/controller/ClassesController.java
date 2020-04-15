@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -149,5 +150,18 @@ public class ClassesController {
         }
     }
 
+    /**
+     * 注册时，列出所有班级
+     * @param id 从传过来的学院ID
+     * @return
+     */
+    @RequestMapping(value = "/loadAllClasses/{id}",method = RequestMethod.GET)
+    public Result<Object> loadAllClasses(@PathVariable Integer id) {
+        QueryWrapper<Classes> qw = new QueryWrapper<>();
+        qw.eq(id != null,"college",id);
+        List<Classes> classesList = this.classesService.list(qw);
+
+        return new Result<>("查询成功",classesList);
+    }
 }
 

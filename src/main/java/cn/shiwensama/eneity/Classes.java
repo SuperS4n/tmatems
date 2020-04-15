@@ -2,6 +2,7 @@ package cn.shiwensama.eneity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -42,6 +43,7 @@ public class Classes implements Serializable {
     /**
      * 逻辑删除，0未删除，1以删除
      */
+    @TableLogic
     private Integer deleted;
 
 

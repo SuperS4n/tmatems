@@ -57,14 +57,16 @@ public class Student implements Serializable {
     private String collegeName;
 
     /**
-     * 年级，1234
-     */
-    private Integer level;
-
-    /**
      * 班级id
      */
     private Integer classes;
+
+
+    /**
+     * 年级
+     */
+    @TableField(exist = false)
+    private Integer level;
 
     /**
      * 班级名称

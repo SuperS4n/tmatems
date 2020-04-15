@@ -46,6 +46,7 @@ public class ShiroConfig {
         filterMap.put("/registered/*","anon");
         filterMap.put("/*/login", "anon");
         filterMap.put("/loadAllCollege","anon");
+        filterMap.put("/loadAllClasses/*","anon");
         filterMap.put("/**", "authc");
 
         shiroFilterFactoryBean.setLoginUrl("/tologin");
