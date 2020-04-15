@@ -17,9 +17,13 @@ public class CorsConfig{
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
+        //1 设置访问源地址
         config.addAllowedOrigin("*");
+        // 是否支持安全证书
         config.setAllowCredentials(true);
+        // 2 设置访问源请求头
         config.addAllowedMethod("*");
+        // 3 设置访问源请求方法
         config.addAllowedHeader("*");
         UrlBasedCorsConfigurationSource configSource = new UrlBasedCorsConfigurationSource();
         configSource.registerCorsConfiguration("/**", config);

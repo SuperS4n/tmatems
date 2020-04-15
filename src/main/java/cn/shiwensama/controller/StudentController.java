@@ -132,7 +132,6 @@ public class StudentController {
      * @param student
      * @return
      */
-    @RequiresPermissions("student:create")
     @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/registered", method = RequestMethod.POST)
     public Result<Object> addStudent(@RequestBody Student student) {
