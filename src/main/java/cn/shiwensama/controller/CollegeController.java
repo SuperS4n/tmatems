@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,12 +53,11 @@ public class CollegeController {
      * 分页查询学院
      *
      * @param collegeVo
-     * @param request
      * @return
      */
     @RequiresPermissions("college:view")
     @RequestMapping(value = "/college", method = RequestMethod.GET)
-    public Result<Object> getAllCollege(CollegeVo collegeVo, HttpServletRequest request) {
+    public Result<Object> getAllCollege(CollegeVo collegeVo) {
         IPage<College> page = new Page<>(collegeVo.getPagenum(), collegeVo.getPagesize());
 
         QueryWrapper<College> qw = new QueryWrapper<>();

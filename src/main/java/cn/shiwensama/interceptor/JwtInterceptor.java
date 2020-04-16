@@ -3,7 +3,6 @@ package cn.shiwensama.interceptor;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.exception.SysException;
 import cn.shiwensama.utils.JwtUtils;
-import io.jsonwebtoken.Claims;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -28,18 +27,6 @@ public class JwtInterceptor extends HandlerInterceptorAdapter {
         String authorization = request.getHeader("Authorization");
         //2.判断
         if (!StringUtils.isEmpty(authorization) && authorization.startsWith("Bearer ")) {
-
-            String token = authorization.replace("Bearer ", "");
-            Claims claims = jwtUtils.parseJWT(token);
-            Object collegeId = null;
-
-            try {
-                collegeId = claims.get("collegeId");
-            } catch (Exception e) {
-                throw new SysException(403,"token无效");
-            }
-
-            request.setAttribute("collegeId", collegeId);
             //放行
             return true;
         }

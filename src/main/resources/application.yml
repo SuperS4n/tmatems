@@ -1,7 +1,7 @@
 jwt:
   config:
     key: tmatems
-    ttl: 360000
+    ttl: 7200000
 server:
   port: 8090
 spring:

@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,20 +48,17 @@ public class CourseController {
      * 分页查询课程
      *
      * @param courseVo
-     * @param request
      * @return
      */
     @RequiresPermissions("course:view")
     @RequestMapping(value = "/course", method = RequestMethod.GET)
-    public Result<Object> getAllCourse(CourseVo courseVo, HttpServletRequest request) {
+    public Result<Object> getAllCourse(CourseVo courseVo) {
         IPage<Course> page = new Page<>(courseVo.getPagenum(), courseVo.getPagesize());
 
         QueryWrapper<Course> qw = new QueryWrapper<>();
         qw.like(StringUtils.isNotBlank(courseVo.getName()), "name", courseVo.getName());
         qw.eq(courseVo.getLevel() != null,"level",courseVo.getLevel());
-        //设置学院
-        Integer collegeId = (Integer) request.getAttribute("collegeId");
-        qw.eq(collegeId != null && collegeId != 0, "college", request.getAttribute("collegeId"));
+
 
         this.courseService.page(page, qw);
 

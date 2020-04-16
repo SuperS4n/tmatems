@@ -10,8 +10,10 @@ import cn.shiwensama.service.CollegeService;
 import cn.shiwensama.service.RoleService;
 import cn.shiwensama.service.TeacherService;
 import cn.shiwensama.token.UsernamePasswordToken;
+import cn.shiwensama.utils.ActiveUser;
 import cn.shiwensama.utils.JwtUtils;
 import cn.shiwensama.utils.Result;
+import cn.shiwensama.utils.ShiroUtils;
 import cn.shiwensama.vo.TeacherVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -25,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -72,32 +73,36 @@ public class TeacherController {
                 teacher.getPassword(), StateEnum.TEACHER.getCode());
         try {
             subject.login(authenticationToken);
+
+            ActiveUser loginUser = (ActiveUser) ShiroUtils.getLoginUser();
+
+            Map<String, Object> map = new HashMap<>(2);
+            map.put("teacher", loginUser.getTeacher());
+
+            //3.登录成功,设置token
+            String jwt = jwtUtils.createJWT(teacher.getId(), teacher.getUsername(),map);
+
+            return new Result<>("登录成功", jwt);
+
         } catch (Exception e) {
             throw new SysException(ResultEnum.PARAMS_ERROR.getCode(), "用户名或密码错误！");
         }
-        //3.登录成功,设置token
-        String jwt = jwtUtils.createJWT(teacher.getId(), teacher.getUsername());
 
-        return new Result<>("登录成功", jwt);
     }
 
     /**
      * 分页查询教师
      *
      * @param teacherVo
-     * @param request
      * @return
      */
     @RequiresPermissions("teacher:view")
     @RequestMapping(value = "/teacher", method = RequestMethod.GET)
-    public Result<Object> getAllTeacher(TeacherVo teacherVo, HttpServletRequest request) {
+    public Result<Object> getAllTeacher(TeacherVo teacherVo) {
         IPage<Teacher> page = new Page<>(teacherVo.getPagenum(), teacherVo.getPagesize());
 
         QueryWrapper<Teacher> qw = new QueryWrapper<>();
         qw.eq(StringUtils.isNotBlank(teacherVo.getName()), "name", teacherVo.getName());
-        //设置学院
-        Integer collegeId = (Integer) request.getAttribute("collegeId");
-        qw.eq(collegeId != null && collegeId != 0, "college", request.getAttribute("collegeId"));
 
         this.teacherService.page(page, qw);
 

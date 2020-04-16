@@ -53,7 +53,7 @@ public class JwtUtils {
     }
 
     /**
-     * 设置认证token
+     * 设置认证token 可以携带用户信息
      */
     public String createJWT(String id, String subject, Map<String,Object> map) {
 
