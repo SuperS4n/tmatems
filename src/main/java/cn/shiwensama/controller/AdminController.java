@@ -69,8 +69,15 @@ public class AdminController {
 
             ActiveUser loginUser = (ActiveUser) ShiroUtils.getLoginUser();
 
-            Map<String, Object> map = new HashMap<>(2);
+            Map<String, Object> map = new HashMap<>(4);
             map.put("admin", loginUser.getAdmin());
+            if(loginUser.getAdmin().getCollege() == 0) {
+                //超级管理员
+                map.put("role",1);
+            }else {
+                //学院管理员
+                map.put("role",4);
+            }
 
             //3.登录成功,设置token
             String jwt = jwtUtils.createJWT(admin.getId(), admin.getUsername(), map);

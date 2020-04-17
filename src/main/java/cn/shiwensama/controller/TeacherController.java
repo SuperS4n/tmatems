@@ -76,8 +76,9 @@ public class TeacherController {
 
             ActiveUser loginUser = (ActiveUser) ShiroUtils.getLoginUser();
 
-            Map<String, Object> map = new HashMap<>(2);
+            Map<String, Object> map = new HashMap<>(4);
             map.put("teacher", loginUser.getTeacher());
+            map.put("role",3);
 
             //3.登录成功,设置token
             String jwt = jwtUtils.createJWT(teacher.getId(), teacher.getUsername(),map);

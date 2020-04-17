@@ -81,7 +81,8 @@ public class StudentController {
 
             ActiveUser loginUser = (ActiveUser) ShiroUtils.getLoginUser();
 
-            Map<String, Object> map = new HashMap<>(2);
+            Map<String, Object> map = new HashMap<>(4);
+            map.put("role",2);
             map.put("student", loginUser.getStudent());
 
             //3.登录成功,设置token
