@@ -1,14 +1,9 @@
 package cn.shiwensama.utils;
 
-import cn.shiwensama.eneity.Admin;
 import cn.shiwensama.eneity.Permission;
-import cn.shiwensama.eneity.Student;
-import cn.shiwensama.eneity.Teacher;
 import cn.shiwensama.service.PermissionService;
 import cn.shiwensama.service.RoleService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -23,19 +18,7 @@ import java.util.Set;
  **/
 public class GetPerCodes {
 
-    @Autowired
-    @Lazy
-    private RoleService roleService;
-
-    @Autowired
-    @Lazy
-    private PermissionService permissionService;
-
-    public ActiveUser doGetPerCodes(Admin admin, Student student, Teacher teacher, String userId) {
-        ActiveUser activeUser = new ActiveUser();
-        activeUser.setAdmin(admin);
-        activeUser.setStudent(student);
-        activeUser.setTeacher(teacher);
+    public List<String> doGetPerCodes(String userId,RoleService roleService,PermissionService permissionService) {
 
         QueryWrapper<Permission> qw = new QueryWrapper<>();
         qw.eq("type", "permission");
@@ -62,9 +45,8 @@ public class GetPerCodes {
         for (Permission permission : list) {
             percodes.add(permission.getPercode());
         }
-        //把权限码放到ActiveUser中
-        activeUser.setPermissions(percodes);
 
-        return activeUser;
+
+        return percodes;
     }
 }

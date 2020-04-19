@@ -6,7 +6,6 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Date;
 import java.util.Map;
@@ -18,18 +17,17 @@ import java.util.Map;
  **/
 @Getter
 @Setter
-@ConfigurationProperties("jwt.config")
 public class JwtUtils {
 
     /**
      * 签名的私钥
      */
-    private String key;
+    private String key = "tmatems";
 
     /**
      * 过期时间
      */
-    private long ttl;
+    private long ttl = 7200000;
 
     /**
      * 设置认证token
@@ -55,7 +53,7 @@ public class JwtUtils {
     /**
      * 设置认证token 可以携带用户信息
      */
-    public String createJWT(String id, String subject, Map<String,Object> map) {
+    public String createJWT(String id, String subject, Map<String, Object> map) {
 
         long now = System.currentTimeMillis();
         //失效时间
@@ -68,8 +66,8 @@ public class JwtUtils {
         if (ttl > 0) {
             jwtBuilder.setExpiration(new Date(exp));
         }
-        for (Map.Entry<String,Object> entry:map.entrySet()) {
-            jwtBuilder.claim(entry.getKey(),entry.getValue());
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            jwtBuilder.claim(entry.getKey(), entry.getValue());
         }
         //返回token
         return jwtBuilder.compact();
@@ -85,6 +83,7 @@ public class JwtUtils {
                     .setSigningKey(key)
                     .parseClaimsJws(token).getBody();
         } catch (Exception e) {
+            return null;
         }
         return claims;
     }

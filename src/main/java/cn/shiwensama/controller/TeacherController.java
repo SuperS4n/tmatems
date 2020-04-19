@@ -9,18 +9,15 @@ import cn.shiwensama.exception.SysException;
 import cn.shiwensama.service.CollegeService;
 import cn.shiwensama.service.RoleService;
 import cn.shiwensama.service.TeacherService;
-import cn.shiwensama.token.UsernamePasswordToken;
-import cn.shiwensama.utils.ActiveUser;
+import cn.shiwensama.token.JwtToken;
 import cn.shiwensama.utils.JwtUtils;
 import cn.shiwensama.utils.Result;
-import cn.shiwensama.utils.ShiroUtils;
 import cn.shiwensama.vo.TeacherVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,25 +66,11 @@ public class TeacherController {
 
         //2.启用shiro登录
         Subject subject = SecurityUtils.getSubject();
-        AuthenticationToken authenticationToken = new UsernamePasswordToken(teacher.getUsername(),
-                teacher.getPassword(), StateEnum.TEACHER.getCode());
-        try {
-            subject.login(authenticationToken);
 
-            ActiveUser loginUser = (ActiveUser) ShiroUtils.getLoginUser();
+        JwtToken jwtToken = new JwtToken(teacher.getUsername(),teacher.getPassword(),StateEnum.TEACHER.getCode());
+        subject.login(jwtToken);
 
-            Map<String, Object> map = new HashMap<>(4);
-            map.put("teacher", loginUser.getTeacher());
-            map.put("role",3);
-
-            //3.登录成功,设置token
-            String jwt = jwtUtils.createJWT(teacher.getId(), teacher.getUsername(),map);
-
-            return new Result<>("登录成功", jwt);
-
-        } catch (Exception e) {
-            throw new SysException(ResultEnum.PARAMS_ERROR.getCode(), "用户名或密码错误！");
-        }
+        return new Result<>("登录成功", jwtToken.getToken());
 
     }
 

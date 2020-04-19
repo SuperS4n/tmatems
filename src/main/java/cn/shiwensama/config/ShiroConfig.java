@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 
+import javax.servlet.Filter;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -32,6 +34,10 @@ public class ShiroConfig {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
 
         shiroFilterFactoryBean.setSecurityManager(securityManager);
+        // 添加自己的过滤器并且取名为jwt
+        Map<String, Filter> filterMaps = new HashMap<>();
+        filterMaps.put("jwt", new JwtFilter());
+        shiroFilterFactoryBean.setFilters(filterMaps);
 
         /**
          * 常用过滤器
@@ -42,14 +48,16 @@ public class ShiroConfig {
          *  role：该资源必须得到角色权限才可以访问
          */
         Map<String, String> filterMap = Maps.newHashMap();
+
         filterMap.put("/registered","anon");
         filterMap.put("/registered/*","anon");
         filterMap.put("/*/login", "anon");
         filterMap.put("/loadAllCollege","anon");
         filterMap.put("/loadAllClasses/*","anon");
-        filterMap.put("/**", "authc");
+        //filterMap.put("/**", "authc");
 
-        shiroFilterFactoryBean.setLoginUrl("/tologin");
+        filterMap.put("/**","jwt");
+
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterMap);
         return shiroFilterFactoryBean;
     }

@@ -17,10 +17,10 @@ public enum ResultEnum {
     //操作相关
     SUCCESS(200,"操作成功"),
     ERROR(400,"操作失败,接口异常"),
-    DATA_NOT_FOUND(404,"查询失败"),
+    NOT_LOGIN(401,"当前账号未登录,无效token"),
     PARAMS_ERROR(402,"参数错误"),
-
-    NOT_LOGIN(401,"当前账号未登录,无效token")
+    UNAUTHORIZED(403,"权限不足"),
+    DATA_NOT_FOUND(404,"查询失败"),
     ;
 
     private Integer code;

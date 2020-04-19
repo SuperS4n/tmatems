@@ -18,10 +18,10 @@ public class TmatemsApplicationTests {
 
     @Test
     public void contextLoads() {
-        String token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTU4NzAzNTEwNSwiZXhwIjoxNTg3MDQyMzA1LCJhZG1pbiI6eyJpZCI6IjEiLCJuYW1lIjoi6LaF57qn566h55CG5ZGYIiwidXNlcm5hbWUiOiJhZG1pbiIsInBhc3N3b3JkIjoiYWRtaW4iLCJzZXgiOjEsImNvbGxlZ2UiOjAsImRlbGV0ZWQiOjB9fQ.x3RT3vspw_rXn5md3rUtUydoDTvbqEh3bzwkzZzdzhI";
+        String token = "eyJhbGciOiJIUzI1NiJ9.eyJqdGkiOiIxIiwic3ViIjoiYWRtaW4iLCJpYXQiOjE1ODcyNjk0NjgsImV4cCI6MTU4NzI3NjY2OCwiYWRtaW4iOnsiaWQiOiIxIiwibmFtZSI6Iui2hee6p-euoeeQhuWRmCIsInVzZXJuYW1lIjoiYWRtaW4iLCJwYXNzd29yZCI6ImFkbWluIiwic2V4IjoxLCJjb2xsZWdlIjowLCJkZWxldGVkIjowfSwicm9sZSI6MX0.pp-qrRmD_wyoeDVzNpT9tT2z4NyArf5FZiHkdyltpDE";
         Claims claims = jwtUtils.parseJWT(token);
-        Object admin = claims.get("admin");
+        Object key = claims.get("admin");
 
-        System.out.println(admin);
+        System.out.println(key);
     }
 }

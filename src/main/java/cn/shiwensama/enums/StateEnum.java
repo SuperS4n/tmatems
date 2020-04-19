@@ -36,11 +36,11 @@ public enum StateEnum {
 
     /**
      * 用户标识。
-     * 0表示管理员，1表示普通用户
+     * 1表示管理员，2表示学生，3表示教师
      */
-    ADMIN(0, "管理员"),
-    STUDENT(1, "学生"),
-    TEACHER(2,"教师");
+    ADMIN(1, "管理员"),
+    STUDENT(2, "学生"),
+    TEACHER(3,"教师");
 
     private Integer code;
     private String msg;

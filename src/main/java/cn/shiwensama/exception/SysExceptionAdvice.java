@@ -1,7 +1,9 @@
 package cn.shiwensama.exception;
 
+import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.utils.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,14 +34,20 @@ public class SysExceptionAdvice {
     }
 
     /**
-     * shiro权限不足,捕获异常提示
+     * shiro异常统一处理
      * @param e
      * @return
      */
     @ResponseBody
     @ExceptionHandler(UnauthorizedException.class)
-    public Result<Object> defaultExceptionHandler(Exception e) {
-        return new Result<>("权限不足","/error");
+    public Result<Object> unauthorizedExceptionHandler(Exception e) {
+        return new Result<>(ResultEnum.UNAUTHORIZED);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(AuthenticationException.class)
+    public Result<Object> authenticationExceptionHandler(Exception e) {
+        return new Result<>(ResultEnum.PARAMS_ERROR.getCode(),"用户名或密码错误");
     }
 
 

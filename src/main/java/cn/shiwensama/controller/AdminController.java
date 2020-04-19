@@ -7,18 +7,15 @@ import cn.shiwensama.enums.StateEnum;
 import cn.shiwensama.exception.SysException;
 import cn.shiwensama.service.AdminService;
 import cn.shiwensama.service.RoleService;
-import cn.shiwensama.token.UsernamePasswordToken;
-import cn.shiwensama.utils.ActiveUser;
+import cn.shiwensama.token.JwtToken;
 import cn.shiwensama.utils.JwtUtils;
 import cn.shiwensama.utils.Result;
-import cn.shiwensama.utils.ShiroUtils;
 import cn.shiwensama.vo.AdminVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +38,10 @@ public class AdminController {
 
     @Autowired
     private JwtUtils jwtUtils;
-    
+
     @Autowired
     private AdminService adminService;
-    
+
     @Autowired
     private RoleService roleService;
 
@@ -63,30 +60,11 @@ public class AdminController {
 
         //2.启用shiro登录
         Subject subject = SecurityUtils.getSubject();
-        AuthenticationToken authenticationToken = new UsernamePasswordToken(admin.getUsername(), admin.getPassword(), StateEnum.ADMIN.getCode());
-        try {
-            subject.login(authenticationToken);
 
-            ActiveUser loginUser = (ActiveUser) ShiroUtils.getLoginUser();
+        JwtToken jwtToken = new JwtToken(admin.getUsername(),admin.getPassword(),StateEnum.ADMIN.getCode());
+        subject.login(jwtToken);
 
-            Map<String, Object> map = new HashMap<>(4);
-            map.put("admin", loginUser.getAdmin());
-            if(loginUser.getAdmin().getCollege() == 0) {
-                //超级管理员
-                map.put("role",1);
-            }else {
-                //学院管理员
-                map.put("role",4);
-            }
-
-            //3.登录成功,设置token
-            String jwt = jwtUtils.createJWT(admin.getId(), admin.getUsername(), map);
-
-            return new Result<>("登录成功", jwt);
-
-        } catch (Exception e) {
-           throw  new SysException(ResultEnum.PARAMS_ERROR.getCode(), "用户名或密码错误！");
-        }
+        return new Result<>("登录成功", jwtToken.getToken());
     }
 
     /**
@@ -95,7 +73,6 @@ public class AdminController {
      * @param adminVo
      * @return
      */
-    @RequiresPermissions("admin:view")
     @RequestMapping(value = "/admin", method = RequestMethod.GET)
     public Result<Object> getAllAdmin(AdminVo adminVo) {
         IPage<Admin> page = new Page<>(adminVo.getPagenum(), adminVo.getPagesize());
@@ -142,7 +119,6 @@ public class AdminController {
      * @param admin
      * @return
      */
-    @RequiresPermissions("admin:update")
     @RequestMapping(value = "/admin", method = RequestMethod.PUT)
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> updateAdmin(@RequestBody Admin admin) {
@@ -177,23 +153,25 @@ public class AdminController {
 
     /**
      * 根据账号查询管理员
+     *
      * @param username
      * @return
      */
     @RequiresPermissions("admin:view")
-    @RequestMapping(value = "/admin/{username}",method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/{username}", method = RequestMethod.GET)
     public Result<Object> getOneAdmin(@PathVariable String username) {
         QueryWrapper<Admin> qw = new QueryWrapper<>();
-        qw.eq("username",username);
+        qw.eq("username", username);
         Admin one = this.adminService.getOne(qw);
 
-        if(one != null) {
+        if (one != null) {
             //已存在账号
             return new Result<>(1);
-        }else {
+        } else {
             //账号不重复，可以注册
             return new Result<>(0);
         }
     }
+
 }
 

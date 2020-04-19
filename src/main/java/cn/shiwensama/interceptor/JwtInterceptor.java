@@ -1,9 +1,6 @@
 package cn.shiwensama.interceptor;
 
-import cn.shiwensama.enums.ResultEnum;
-import cn.shiwensama.exception.SysException;
 import cn.shiwensama.utils.JwtUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -18,18 +15,20 @@ import javax.servlet.http.HttpServletResponse;
  **/
 public class JwtInterceptor extends HandlerInterceptorAdapter {
 
+    final String Bearer = "Bearer ";
+
     @Autowired
     private JwtUtils jwtUtils;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        //1.通过request获取到authorization
-        String authorization = request.getHeader("Authorization");
-        //2.判断
-        if (!StringUtils.isEmpty(authorization) && authorization.startsWith("Bearer ")) {
-            //放行
-            return true;
-        }
-        throw new SysException(ResultEnum.NOT_LOGIN);
+        // //1.通过request获取到authorization
+        // String authorization = request.getHeader("Authorization");
+        // //2.判断
+        // if (StringUtils.isNotBlank(authorization) && authorization.startsWith(Bearer)) {
+        //     return true;
+        // }
+        //throw new SysException(ResultEnum.NOT_LOGIN);
+        return true;
     }
 }

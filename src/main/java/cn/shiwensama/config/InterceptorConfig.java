@@ -1,9 +1,5 @@
 package cn.shiwensama.config;
 
-import cn.shiwensama.interceptor.JwtInterceptor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 /**
@@ -11,26 +7,25 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
  * @create: 2020-03-29
  * @description: 拦截器配置类
  **/
-@Configuration
 public class InterceptorConfig extends WebMvcConfigurationSupport {
 
-    @Bean
-    public JwtInterceptor jwtInterceptor() {
-        return new JwtInterceptor();
-    }
-
-    @Override
-    protected void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(jwtInterceptor())
-                //拦截的url
-                .addPathPatterns("/**")
-                //不拦截的url
-                .excludePathPatterns("/*/login")
-                .excludePathPatterns("/registered")
-                .excludePathPatterns("/registered/*")
-                .excludePathPatterns("/loadAllCollege")
-                .excludePathPatterns("//loadAllClasses/*");
-
-        super.addInterceptors(registry);
-    }
+    // @Bean
+    // public JwtInterceptor jwtInterceptor() {
+    //     return new JwtInterceptor();
+    // }
+    //
+    // @Override
+    // protected void addInterceptors(InterceptorRegistry registry) {
+    //     registry.addInterceptor(jwtInterceptor())
+    //             //拦截的url
+    //             .addPathPatterns("/**")
+    //             //不拦截的url
+    //             .excludePathPatterns("/*/login")
+    //             .excludePathPatterns("/registered")
+    //             .excludePathPatterns("/registered/*")
+    //             .excludePathPatterns("/loadAllCollege")
+    //             .excludePathPatterns("//loadAllClasses/*");
+    //
+    //     super.addInterceptors(registry);
+    // }
 }

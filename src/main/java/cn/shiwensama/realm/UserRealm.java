@@ -6,13 +6,12 @@ import cn.shiwensama.eneity.Teacher;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.enums.StateEnum;
 import cn.shiwensama.exception.SysException;
-import cn.shiwensama.service.AdminService;
-import cn.shiwensama.service.StudentService;
-import cn.shiwensama.service.TeacherService;
-import cn.shiwensama.token.UsernamePasswordToken;
-import cn.shiwensama.utils.ActiveUser;
+import cn.shiwensama.service.*;
+import cn.shiwensama.token.JwtToken;
 import cn.shiwensama.utils.GetPerCodes;
+import cn.shiwensama.utils.JwtUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import io.jsonwebtoken.Claims;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -42,7 +41,19 @@ public class UserRealm extends AuthorizingRealm {
     private TeacherService teacherService;
 
     @Autowired
-    private GetPerCodes getPerCodes;
+    private RoleService roleService;
+
+    @Autowired
+    private PermissionService permissionService;
+
+    @Override
+    public boolean supports(AuthenticationToken token) {
+        return token instanceof JwtToken;
+    }
+
+    public UserRealm() {
+        this.setCredentialsMatcher(new JwtCredentialsMatcher());
+    }
 
     /**
      * 做授权
@@ -53,99 +64,116 @@ public class UserRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
-        ActiveUser activeUser = (ActiveUser) principals.getPrimaryPrincipal();
-        List<String> permissions = activeUser.getPermissions();
-        //1.管理员授权
-        if (activeUser.getAdmin() != null) {
-            if (activeUser.getAdmin().getCollege() == 0) {
-                //超级管理员拥有全部权限
-                authorizationInfo.addStringPermission("*:*");
-            } else {
-                if (null != permissions && permissions.size() > 0) {
-                    authorizationInfo.addStringPermissions(permissions);
+        Object principal = principals.getPrimaryPrincipal();
+        System.out.println(principal);
+        GetPerCodes getPerCodes = new GetPerCodes();
+
+        if (principal != null) {
+            if (principal instanceof Admin) {
+                List<String> perCodes = getPerCodes.doGetPerCodes(((Admin) principal).getId(), roleService, permissionService);
+                if (((Admin) principal).getCollege() == 0) {
+                    //超级管理员拥有全部权限
+                    authorizationInfo.addStringPermission("*:*");
+                } else {
+                    if (null != perCodes && perCodes.size() > 0) {
+                        authorizationInfo.addStringPermissions(perCodes);
+                    }
                 }
             }
+            if (principal instanceof Student) {
+                List<String> perCodes = getPerCodes.doGetPerCodes(((Student) principal).getId(), roleService, permissionService);
+                if (null != perCodes && perCodes.size() > 0) {
+                    authorizationInfo.addStringPermissions(perCodes);
+                }
+            }
+            if (principal instanceof Teacher) {
+                List<String> perCodes = getPerCodes.doGetPerCodes(((Teacher) principal).getId(), roleService, permissionService);
+                if (null != perCodes && perCodes.size() > 0) {
+                    authorizationInfo.addStringPermissions(perCodes);
+                }
+            }
+
+            return authorizationInfo;
+
+        } else {
+            throw new SysException(ResultEnum.NOT_LOGIN.getCode(),"授权失败");
         }
 
-        //2.学生授权
-        if (activeUser.getStudent() != null) {
-            if (null != permissions && permissions.size() > 0) {
-                authorizationInfo.addStringPermissions(permissions);
-            }
-        }
-
-        //3.教师授权
-        if (activeUser.getTeacher() != null) {
-            if (null != permissions && permissions.size() > 0) {
-                authorizationInfo.addStringPermissions(permissions);
-            }
-        }
-        return authorizationInfo;
     }
 
     /**
      * 做认证
      *
-     * @param token
+     * @param authenticationToken
      * @return
      * @throws AuthenticationException
      */
     @Override
-    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        //1.把AuthenticationToken 强转为 usernamePasswordToken
-        UsernamePasswordToken usernamePasswordToken = (UsernamePasswordToken) token;
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
+        JwtToken jwtToken = (JwtToken) authenticationToken;
+        JwtUtils jwtUtils = new JwtUtils();
 
-        //2.拿到账号且判断登录账号类型。
-        String username = usernamePasswordToken.getUsername();
-        int state = usernamePasswordToken.getState();
+        if (jwtToken.getToken() != null) {
+            String token = jwtToken.getToken().substring(7);
 
-        //管理员
-        if (state == StateEnum.ADMIN.getCode()) {
-            QueryWrapper<Admin> adminQueryWrapper = new QueryWrapper<>();
-            adminQueryWrapper.eq("username", username);
-            Admin admin = adminService.getOne(adminQueryWrapper);
+            Claims claims = jwtUtils.parseJWT(token);
+            String id = claims.getId();
 
-            if (admin == null) {
-                //用户不存在
-                throw new SysException(ResultEnum.ERROR.getCode(), "用户不存在！");
+            if (claims.get("role") == StateEnum.ADMIN.getCode()) {
+                Admin admin = adminService.getById(id);
+                return new SimpleAuthenticationInfo(admin, jwtToken, this.getName());
             }
-            //获取授权码
-            ActiveUser activeUser = getPerCodes.doGetPerCodes(admin, null, null, admin.getId());
-            System.out.println(activeUser);
-            System.out.println(activeUser.getPermissions().size());
-            return new SimpleAuthenticationInfo(activeUser, admin.getPassword(), this.getName());
-        }
 
-        //学生
-        if (state == StateEnum.STUDENT.getCode()) {
-            QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
-            studentQueryWrapper.eq("username", username);
-            Student student = studentService.getOne(studentQueryWrapper);
-            if (student == null) {
-                //用户不存在
-                throw new SysException(ResultEnum.ERROR.getCode(), "用户不存在！");
+            if (claims.get("role") == StateEnum.STUDENT.getCode()) {
+                Student student = studentService.getById(id);
+                return new SimpleAuthenticationInfo(student, jwtToken, this.getName());
             }
-            //获取授权码
-            ActiveUser activeUser = getPerCodes.doGetPerCodes(null, student, null, student.getId());
-            System.out.println(activeUser);
-            System.out.println(activeUser.getPermissions().size());
-            return new SimpleAuthenticationInfo(activeUser, student.getPassword(), this.getName());
-        }
 
-        //教师
-        if (state == StateEnum.TEACHER.getCode()) {
-            QueryWrapper<Teacher> teacherQueryWrapper = new QueryWrapper<>();
-            teacherQueryWrapper.eq("username", username);
-            Teacher teacher = teacherService.getOne(teacherQueryWrapper);
-            if (teacher == null) {
-                //用户不存在
-                throw new SysException(ResultEnum.ERROR.getCode(), "用户不存在！");
+            if (claims.get("role") == StateEnum.TEACHER.getCode()) {
+                Teacher teacher = teacherService.getById(id);
+                return new SimpleAuthenticationInfo(teacher, jwtToken, this.getName());
             }
-            //获取授权码
-            ActiveUser activeUser = getPerCodes.doGetPerCodes(null, null, teacher, teacher.getId());
-            System.out.println(activeUser);
-            System.out.println(activeUser.getPermissions().size());
-            return new SimpleAuthenticationInfo(activeUser, teacher.getPassword(), this.getName());
+
+        } else {
+            //没有token,正常登录
+            //拿到账号且判断登录账号类型。
+            String username = jwtToken.getUsername();
+            String password = String.valueOf(jwtToken.getPassword());
+            int state = jwtToken.getState();
+
+            //管理员登录
+            if (state == StateEnum.ADMIN.getCode()) {
+                QueryWrapper<Admin> adminQueryWrapper = new QueryWrapper<>();
+                adminQueryWrapper.eq("username", username);
+                Admin admin = adminService.getOne(adminQueryWrapper);
+                if (!admin.getPassword().equals(password)) {
+                    throw new AuthenticationException();
+                }
+
+                return new SimpleAuthenticationInfo(admin, jwtToken, this.getName());
+            }
+            //学生登录
+            if (state == StateEnum.STUDENT.getCode()) {
+                QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
+                studentQueryWrapper.eq("username", username);
+                Student student = studentService.getOne(studentQueryWrapper);
+                if (!student.getPassword().equals(password)) {
+                    throw new AuthenticationException();
+                }
+
+                return new SimpleAuthenticationInfo(student, jwtToken, this.getName());
+            }
+            //教师登录
+            if (state == StateEnum.TEACHER.getCode()) {
+                QueryWrapper<Teacher> teacherQueryWrapper = new QueryWrapper<>();
+                teacherQueryWrapper.eq("username", username);
+                Teacher teacher = teacherService.getOne(teacherQueryWrapper);
+                if (!teacher.getPassword().equals(password)) {
+                    throw new AuthenticationException();
+                }
+
+                return new SimpleAuthenticationInfo(teacher, jwtToken, this.getName());
+            }
         }
 
         return null;
