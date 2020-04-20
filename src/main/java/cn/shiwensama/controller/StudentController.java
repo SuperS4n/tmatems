@@ -12,7 +12,6 @@ import cn.shiwensama.service.CollegeService;
 import cn.shiwensama.service.RoleService;
 import cn.shiwensama.service.StudentService;
 import cn.shiwensama.token.JwtToken;
-import cn.shiwensama.utils.JwtUtils;
 import cn.shiwensama.utils.Result;
 import cn.shiwensama.vo.StudentVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -26,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,9 +40,6 @@ import java.util.Map;
  */
 @RestController
 public class StudentController {
-
-    @Autowired
-    private JwtUtils jwtUtils;
 
     @Autowired
     private StudentService studentService;
@@ -92,11 +89,13 @@ public class StudentController {
         IPage<Student> page = new Page<>(studentVo.getPagenum(), studentVo.getPagesize());
 
         QueryWrapper<Student> qw = new QueryWrapper<>();
-        qw.eq(StringUtils.isNotBlank(studentVo.getName()), "name", studentVo.getName());
+        qw.like(StringUtils.isNotBlank(studentVo.getName()), "name", studentVo.getName());
+        qw.eq(null != studentVo.getCollege(),"college",studentVo.getCollege());
+        qw.eq(null != studentVo.getClasses(),"classes",studentVo.getClasses());
 
         this.studentService.page(page, qw);
 
-        //循环设置学院名称和班级名称
+        //循环设置 学院名称、班级名称、年级
         List<Student> students = page.getRecords();
         for (Student student : students) {
 
@@ -106,8 +105,12 @@ public class StudentController {
             if (studentCollege != null && studentClasses != null) {
                 College college = collegeService.getById(studentCollege);
                 Classes classes = classesService.getById(studentClasses);
+                //学院名称
                 student.setCollegeName(college.getName());
+                //班级名称
                 student.setClassesName(classes.getName());
+                //年级
+                student.setLevel(classes.getLevel());
             }
         }
 
@@ -181,13 +184,32 @@ public class StudentController {
     }
 
     /**
+     * 批量删除学生
+     *
+     * @param ids
+     * @return
+     */
+    @RequiresPermissions("student:delete")
+    @Transactional(rollbackFor = Exception.class)
+    @RequestMapping(value = "/student/multiDelete", method = RequestMethod.PUT)
+    public Result<Object> batchDeleteStudent(@RequestBody String[] ids) {
+
+        try {
+            studentService.removeByIds(Arrays.asList(ids));
+            return new Result<>("删除成功");
+        } catch (Exception e) {
+            throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
+        }
+    }
+
+    /**
      * 根据账号查询学生
      *
      * @param username
      * @return
      */
     @RequestMapping(value = "/registered/{username}", method = RequestMethod.GET)
-    public Result<Object> getOneStudent(@PathVariable String username) {
+    public Result<Object> getOneStudentByUsername(@PathVariable String username) {
         QueryWrapper<Student> qw = new QueryWrapper<>();
         qw.eq("username", username);
         Student one = this.studentService.getOne(qw);
@@ -199,6 +221,25 @@ public class StudentController {
             //账号不重复，可以注册
             return new Result<>(0);
         }
+    }
+
+    /**
+     * 根据id查询学生
+     *
+     * @param id
+     * @return
+     */
+    @RequiresPermissions("student:view")
+    @RequestMapping(value = "/student/{id}", method = RequestMethod.GET)
+    public Result<Object> getOneStudentById(@PathVariable String id) {
+        QueryWrapper<Student> qw = new QueryWrapper<>();
+        qw.eq("id", id);
+        Student one = this.studentService.getOne(qw);
+
+        Map<String, Object> resultMap = new HashMap<>(4);
+        resultMap.put("student", one);
+
+        return new Result<>("根据id查询学生", resultMap);
     }
 }
 

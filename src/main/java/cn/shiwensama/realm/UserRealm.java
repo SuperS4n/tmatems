@@ -65,7 +65,7 @@ public class UserRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
         Object principal = principals.getPrimaryPrincipal();
-        System.out.println(principal);
+        //System.out.println(principal);
         GetPerCodes getPerCodes = new GetPerCodes();
 
         if (principal != null) {
@@ -123,7 +123,10 @@ public class UserRealm extends AuthorizingRealm {
                 Admin admin = adminService.getById(id);
                 return new SimpleAuthenticationInfo(admin, jwtToken, this.getName());
             }
-
+            if (claims.get("role") == StateEnum.COLLEGEADMIN.getCode()) {
+                Admin admin = adminService.getById(id);
+                return new SimpleAuthenticationInfo(admin, jwtToken, this.getName());
+            }
             if (claims.get("role") == StateEnum.STUDENT.getCode()) {
                 Student student = studentService.getById(id);
                 return new SimpleAuthenticationInfo(student, jwtToken, this.getName());

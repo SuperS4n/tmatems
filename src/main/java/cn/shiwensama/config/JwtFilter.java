@@ -3,7 +3,6 @@ package cn.shiwensama.config;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.exception.SysException;
 import cn.shiwensama.token.JwtToken;
-import cn.shiwensama.utils.JwtUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.springframework.http.HttpStatus;
@@ -32,7 +31,6 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
     protected boolean isLoginAttempt(ServletRequest request, ServletResponse response) {
         HttpServletRequest req = (HttpServletRequest) request;
         String authorization = req.getHeader("Authorization");
-        JwtUtils jwtUtils = new JwtUtils();
         if (StringUtils.isNotBlank(authorization) && authorization.startsWith(Bearer)) {
             try {
                 executeLogin(request, response);

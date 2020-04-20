@@ -40,7 +40,8 @@ public enum StateEnum {
      */
     ADMIN(1, "管理员"),
     STUDENT(2, "学生"),
-    TEACHER(3,"教师");
+    TEACHER(3,"教师"),
+    COLLEGEADMIN(4,"学院管理员");
 
     private Integer code;
     private String msg;

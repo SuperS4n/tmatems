@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * @author: shiwensama
  * @create: 2020-04-19
- * @description:
+ * @description: 自定义shiro的密码匹配器
  **/
 public class JwtCredentialsMatcher implements CredentialsMatcher {
 

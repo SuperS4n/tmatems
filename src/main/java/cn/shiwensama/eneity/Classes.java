@@ -41,6 +41,11 @@ public class Classes implements Serializable {
     private Integer college;
 
     /**
+     * 年级
+     */
+    private Integer level;
+
+    /**
      * 逻辑删除，0未删除，1以删除
      */
     @TableLogic

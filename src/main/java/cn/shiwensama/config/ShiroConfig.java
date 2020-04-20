@@ -54,7 +54,7 @@ public class ShiroConfig {
         filterMap.put("/*/login", "anon");
         filterMap.put("/loadAllCollege","anon");
         filterMap.put("/loadAllClasses/*","anon");
-        //filterMap.put("/**", "authc");
+        filterMap.put("/**", "authc");
 
         filterMap.put("/**","jwt");
 
