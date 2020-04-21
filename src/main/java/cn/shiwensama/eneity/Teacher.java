@@ -51,6 +51,11 @@ public class Teacher implements Serializable {
     private Integer college;
 
     /**
+     * 教师职称
+     */
+    private Integer title;
+
+    /**
      * 学院名称
      */
     @TableField(exist = false)

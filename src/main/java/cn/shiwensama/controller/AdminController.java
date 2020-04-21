@@ -8,7 +8,6 @@ import cn.shiwensama.exception.SysException;
 import cn.shiwensama.service.AdminService;
 import cn.shiwensama.service.RoleService;
 import cn.shiwensama.token.JwtToken;
-import cn.shiwensama.utils.JwtUtils;
 import cn.shiwensama.utils.Result;
 import cn.shiwensama.vo.AdminVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -35,9 +34,6 @@ import java.util.Map;
  */
 @RestController
 public class AdminController {
-
-    @Autowired
-    private JwtUtils jwtUtils;
 
     @Autowired
     private AdminService adminService;
@@ -78,7 +74,8 @@ public class AdminController {
         IPage<Admin> page = new Page<>(adminVo.getPagenum(), adminVo.getPagesize());
 
         QueryWrapper<Admin> qw = new QueryWrapper<>();
-        qw.eq(StringUtils.isNotBlank(adminVo.getName()), "name", adminVo.getName());
+        qw.like(StringUtils.isNotBlank(adminVo.getName()), "name", adminVo.getName());
+        qw.eq(null != adminVo.getCollege(),"college",adminVo.getCollege());
 
         this.adminService.page(page, qw);
 
@@ -132,6 +129,26 @@ public class AdminController {
     }
 
     /**
+     * 重置管理员密码
+     *
+     * @param admin
+     * @return
+     */
+    @RequiresPermissions("admin:update")
+    @RequestMapping(value = "/admin/resetPassword", method = RequestMethod.PUT)
+    @Transactional(rollbackFor = Exception.class)
+    public Result<Object> resetPassword(@RequestBody Admin admin) {
+
+        try {
+            this.adminService.updateById(admin);
+            return new Result<>("重置密码成功");
+        } catch (Exception e) {
+            throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
+        }
+    }
+
+
+    /**
      * 删除管理员
      *
      * @param id
@@ -144,7 +161,7 @@ public class AdminController {
 
         try {
             adminService.removeById(id);
-            this.roleService.deleteRoleUserByUid(id);
+            roleService.deleteRoleUserByUid(id);
             return new Result<>("删除成功");
         } catch (Exception e) {
             throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
@@ -158,7 +175,7 @@ public class AdminController {
      * @return
      */
     @RequiresPermissions("admin:view")
-    @RequestMapping(value = "/admin/{username}", method = RequestMethod.GET)
+    @RequestMapping(value = "/admin/byUsername/{username}", method = RequestMethod.GET)
     public Result<Object> getOneAdmin(@PathVariable String username) {
         QueryWrapper<Admin> qw = new QueryWrapper<>();
         qw.eq("username", username);
@@ -173,5 +190,23 @@ public class AdminController {
         }
     }
 
+    /**
+     * 根据id查询管理员
+     *
+     * @param id
+     * @return
+     */
+    @RequiresPermissions("admin:view")
+    @RequestMapping(value = "/admin/byId/{id}", method = RequestMethod.GET)
+    public Result<Object> getOneStudentById(@PathVariable String id) {
+        QueryWrapper<Admin> qw = new QueryWrapper<>();
+        qw.eq("id", id);
+        Admin one = this.adminService.getOne(qw);
+
+        Map<String, Object> resultMap = new HashMap<>(4);
+        resultMap.put("admin", one);
+
+        return new Result<>("根据id查询教师成功", resultMap);
+    }
 }
 

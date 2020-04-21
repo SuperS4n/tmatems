@@ -10,7 +10,6 @@ import cn.shiwensama.service.CollegeService;
 import cn.shiwensama.service.RoleService;
 import cn.shiwensama.service.TeacherService;
 import cn.shiwensama.token.JwtToken;
-import cn.shiwensama.utils.JwtUtils;
 import cn.shiwensama.utils.Result;
 import cn.shiwensama.vo.TeacherVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -24,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,9 +38,6 @@ import java.util.Map;
  */
 @RestController
 public class TeacherController {
-
-    @Autowired
-    private JwtUtils jwtUtils;
 
     @Autowired
     private TeacherService teacherService;
@@ -86,7 +83,9 @@ public class TeacherController {
         IPage<Teacher> page = new Page<>(teacherVo.getPagenum(), teacherVo.getPagesize());
 
         QueryWrapper<Teacher> qw = new QueryWrapper<>();
-        qw.eq(StringUtils.isNotBlank(teacherVo.getName()), "name", teacherVo.getName());
+        qw.like(StringUtils.isNotBlank(teacherVo.getName()), "name", teacherVo.getName());
+        qw.eq(null != teacherVo.getCollege(),"college",teacherVo.getCollege());
+        qw.eq(null !=teacherVo.getTitle(),"title",teacherVo.getTitle());
 
         this.teacherService.page(page, qw);
 
@@ -150,6 +149,25 @@ public class TeacherController {
     }
 
     /**
+     * 重置教师密码
+     *
+     * @param teacher
+     * @return
+     */
+    @RequiresPermissions("teacher:update")
+    @RequestMapping(value = "/teacher/resetPassword", method = RequestMethod.PUT)
+    @Transactional(rollbackFor = Exception.class)
+    public Result<Object> resetPassword(@RequestBody Teacher teacher) {
+
+        try {
+            this.teacherService.updateById(teacher);
+            return new Result<>("重置密码成功");
+        } catch (Exception e) {
+            throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
+        }
+    }
+
+    /**
      * 删除教师
      *
      * @param id
@@ -170,12 +188,34 @@ public class TeacherController {
     }
 
     /**
+     * 批量删除教师
+     *
+     * @param ids
+     * @return
+     */
+    @RequiresPermissions("teacher:delete")
+    @Transactional(rollbackFor = Exception.class)
+    @RequestMapping(value = "/teacher/multiDelete", method = RequestMethod.PUT)
+    public Result<Object> batchDeleteStudent(@RequestBody String[] ids) {
+
+        try {
+            teacherService.removeByIds(Arrays.asList(ids));
+            for (String id : ids) {
+                roleService.deleteRoleUserByUid(id);
+            }
+            return new Result<>("删除成功");
+        } catch (Exception e) {
+            throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
+        }
+    }
+
+    /**
      * 根据账号查询教师
      * @param username
      * @return
      */
     @RequiresPermissions("teacher:view")
-    @RequestMapping(value = "/teacher/{username}",method = RequestMethod.GET)
+    @RequestMapping(value = "/teacher/byUsername/{username}",method = RequestMethod.GET)
     public Result<Object> getOneTeacher(@PathVariable String username) {
         QueryWrapper<Teacher> qw = new QueryWrapper<>();
         qw.eq("username",username);
@@ -188,6 +228,25 @@ public class TeacherController {
             //账号不重复，可以注册
             return new Result<>(0);
         }
+    }
+
+    /**
+     * 根据id查询教师
+     *
+     * @param id
+     * @return
+     */
+    @RequiresPermissions("teacher:view")
+    @RequestMapping(value = "/teacher/byId/{id}", method = RequestMethod.GET)
+    public Result<Object> getOneStudentById(@PathVariable String id) {
+        QueryWrapper<Teacher> qw = new QueryWrapper<>();
+        qw.eq("id", id);
+        Teacher one = this.teacherService.getOne(qw);
+
+        Map<String, Object> resultMap = new HashMap<>(4);
+        resultMap.put("admin", one);
+
+        return new Result<>("根据id查询教师成功", resultMap);
     }
 }
 

@@ -164,6 +164,25 @@ public class StudentController {
     }
 
     /**
+     * 重置学生密码
+     *
+     * @param student
+     * @return
+     */
+    @RequiresPermissions("student:update")
+    @RequestMapping(value = "/student/resetPassword", method = RequestMethod.PUT)
+    @Transactional(rollbackFor = Exception.class)
+    public Result<Object> resetPassword(@RequestBody Student student) {
+
+        try {
+            this.studentService.updateById(student);
+            return new Result<>("重置密码成功");
+        } catch (Exception e) {
+            throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
+        }
+    }
+
+    /**
      * 删除学生
      *
      * @param id
@@ -196,6 +215,9 @@ public class StudentController {
 
         try {
             studentService.removeByIds(Arrays.asList(ids));
+            for (String id : ids) {
+                roleService.deleteRoleUserByUid(id);
+            }
             return new Result<>("删除成功");
         } catch (Exception e) {
             throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
@@ -239,7 +261,7 @@ public class StudentController {
         Map<String, Object> resultMap = new HashMap<>(4);
         resultMap.put("student", one);
 
-        return new Result<>("根据id查询学生", resultMap);
+        return new Result<>("根据id查询学生成功", resultMap);
     }
 }
 
