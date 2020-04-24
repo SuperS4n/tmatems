@@ -2,10 +2,12 @@ package cn.shiwensama.controller;
 
 
 import cn.shiwensama.eneity.Admin;
+import cn.shiwensama.eneity.College;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.enums.StateEnum;
 import cn.shiwensama.exception.SysException;
 import cn.shiwensama.service.AdminService;
+import cn.shiwensama.service.CollegeService;
 import cn.shiwensama.service.RoleService;
 import cn.shiwensama.token.JwtToken;
 import cn.shiwensama.utils.Result;
@@ -15,6 +17,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,6 +45,9 @@ public class AdminController {
     @Autowired
     private RoleService roleService;
 
+    @Autowired
+    private CollegeService collegeService;
+
     /**
      * 登录方法
      *
@@ -57,8 +64,12 @@ public class AdminController {
         //2.启用shiro登录
         Subject subject = SecurityUtils.getSubject();
 
-        JwtToken jwtToken = new JwtToken(admin.getUsername(),admin.getPassword(),StateEnum.ADMIN.getCode());
-        subject.login(jwtToken);
+        JwtToken jwtToken = new JwtToken(admin.getUsername(), admin.getPassword(), StateEnum.ADMIN.getCode());
+        try {
+            subject.login(jwtToken);
+        } catch (AuthenticationException e) {
+            return new Result<>(ResultEnum.PARAMS_ERROR.getCode(),"用户名或密码错误");
+        }
 
         return new Result<>("登录成功", jwtToken.getToken());
     }
@@ -75,9 +86,21 @@ public class AdminController {
 
         QueryWrapper<Admin> qw = new QueryWrapper<>();
         qw.like(StringUtils.isNotBlank(adminVo.getName()), "name", adminVo.getName());
-        qw.eq(null != adminVo.getCollege(),"college",adminVo.getCollege());
+        qw.eq(null != adminVo.getCollege(), "college", adminVo.getCollege());
 
         this.adminService.page(page, qw);
+
+        //循环设置学院名称
+        List<Admin> admins = page.getRecords();
+        for (Admin admin : admins) {
+            Integer adminCollege = admin.getCollege();
+            if (adminCollege != null && adminCollege != 0) {
+                College college = collegeService.getById(adminCollege);
+                admin.setCollegeName(college.getName());
+            }else {
+                admin.setCollegeName("无");
+            }
+        }
 
         Map<String, Object> resultMap = new HashMap<>(4);
         resultMap.put("total", page.getTotal());

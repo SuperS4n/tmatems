@@ -16,6 +16,13 @@ import java.util.List;
 public interface RoleService extends IService<Role> {
 
     /**
+     * 获得所有角色
+     *
+     * @return
+     */
+    List<Role> getAllRole();
+
+    /**
      * 查询当前用户拥有的角色ID集合
      * @param id
      * @return

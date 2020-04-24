@@ -1,6 +1,7 @@
 package cn.shiwensama.eneity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
@@ -44,6 +45,12 @@ public class Classes implements Serializable {
      * 年级
      */
     private Integer level;
+
+    /**
+     * 学院名称
+     */
+    @TableField(exist = false)
+    private String collegeName;
 
     /**
      * 逻辑删除，0未删除，1以删除

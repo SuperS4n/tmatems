@@ -2,10 +2,13 @@ package cn.shiwensama.controller;
 
 
 import cn.shiwensama.eneity.Classes;
+import cn.shiwensama.eneity.College;
 import cn.shiwensama.eneity.Student;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.exception.SysException;
 import cn.shiwensama.service.ClassesService;
+import cn.shiwensama.service.CollegeService;
+import cn.shiwensama.service.RoleService;
 import cn.shiwensama.service.StudentService;
 import cn.shiwensama.utils.Result;
 import cn.shiwensama.vo.ClassesVo;
@@ -38,6 +41,12 @@ public class ClassesController {
     @Autowired
     private StudentService studentService;
 
+    @Autowired
+    private RoleService roleService;
+
+    @Autowired
+    private CollegeService collegeService;
+
     /**
      * 分页查询班级
      *
@@ -51,8 +60,20 @@ public class ClassesController {
 
         QueryWrapper<Classes> qw = new QueryWrapper<>();
         qw.like(StringUtils.isNotBlank(classesVo.getName()), "name", classesVo.getName());
+        qw.eq(classesVo.getCollege()!=null,"college",classesVo.getCollege());
+        qw.eq(classesVo.getLevel()!=null,"level",classesVo.getLevel());
 
         this.classesService.page(page, qw);
+
+        //循环设置学院名称
+        List<Classes> classesList = page.getRecords();
+        for (Classes classes : classesList) {
+            Integer collegeId = classes.getCollege();
+            if (collegeId != null) {
+                College college = collegeService.getById(collegeId);
+                classes.setCollegeName(college.getName());
+            }
+        }
 
         Map<String, Object> resultMap = new HashMap<>(4);
         resultMap.put("total", page.getTotal());
@@ -123,6 +144,12 @@ public class ClassesController {
             qw.eq("classes", id);
             studentService.remove(qw);
 
+            //删除角色用户表中的学生
+            List<Student> studentList = studentService.list(qw);
+            for (Student student : studentList) {
+                roleService.deleteRoleUserByUid(student.getId());
+            }
+
             return new Result<>("删除成功");
         } catch (Exception e) {
             throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
@@ -152,16 +179,17 @@ public class ClassesController {
 
     /**
      * 注册时，列出所有班级
+     *
      * @param id 从传过来的学院ID
      * @return
      */
-    @RequestMapping(value = "/loadAllClasses/{id}",method = RequestMethod.GET)
+    @RequestMapping(value = "/loadAllClasses/{id}", method = RequestMethod.GET)
     public Result<Object> loadAllClasses(@PathVariable Integer id) {
         QueryWrapper<Classes> qw = new QueryWrapper<>();
-        qw.eq(id != null,"college",id);
+        qw.eq(id != null, "college", id);
         List<Classes> classesList = this.classesService.list(qw);
 
-        return new Result<>("查询成功",classesList);
+        return new Result<>("查询成功", classesList);
     }
 }
 

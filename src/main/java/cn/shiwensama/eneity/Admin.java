@@ -1,5 +1,6 @@
 package cn.shiwensama.eneity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -48,6 +49,12 @@ public class Admin implements Serializable {
      * 学院编号，0为超级管理员
      */
     private Integer college;
+
+    /**
+     * 学院名称
+     */
+    @TableField(exist = false)
+    private String collegeName;
 
     /**
      * 逻辑删除，0否1是

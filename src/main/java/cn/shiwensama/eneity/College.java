@@ -1,6 +1,7 @@
 package cn.shiwensama.eneity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
@@ -8,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -34,6 +36,12 @@ public class College implements Serializable {
      * 学院名称
      */
     private String name;
+
+    /**
+     * 班级
+     */
+    @TableField(exist = false)
+    private List<Grade> gradeList;
 
     /**
      * 逻辑删除

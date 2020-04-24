@@ -20,6 +20,15 @@ import java.util.List;
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
 
     /**
+     * 获得所有角色列表
+     * @return
+     */
+    @Override
+    public List<Role> getAllRole() {
+        return this.getBaseMapper().selectList(null);
+    }
+
+    /**
      * 查询当前用户拥有的角色ID集合
      * @param id
      * @return

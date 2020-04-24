@@ -1,16 +1,11 @@
 package cn.shiwensama.controller;
 
 
-import cn.shiwensama.eneity.Admin;
-import cn.shiwensama.eneity.College;
-import cn.shiwensama.eneity.Student;
-import cn.shiwensama.eneity.Teacher;
+import cn.shiwensama.eneity.*;
+import cn.shiwensama.enums.GradeEnum;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.exception.SysException;
-import cn.shiwensama.service.AdminService;
-import cn.shiwensama.service.CollegeService;
-import cn.shiwensama.service.StudentService;
-import cn.shiwensama.service.TeacherService;
+import cn.shiwensama.service.*;
 import cn.shiwensama.utils.Result;
 import cn.shiwensama.vo.CollegeVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -22,13 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
- *  前端控制器
+ * 前端控制器
  * </p>
  *
  * @author supers4n
@@ -49,6 +42,12 @@ public class CollegeController {
     @Autowired
     private StudentService studentService;
 
+    @Autowired
+    private ClassesService classesService;
+
+    @Autowired
+    private RoleService roleService;
+
     /**
      * 分页查询学院
      *
@@ -64,6 +63,35 @@ public class CollegeController {
         qw.like(StringUtils.isNotBlank(collegeVo.getName()), "name", collegeVo.getName());
 
         this.collegeService.page(page, qw);
+
+        Calendar calendar = Calendar.getInstance();
+        // 获取当前年
+        int year = calendar.get(Calendar.YEAR);
+
+        //学院列表
+        List<College> collegeList = page.getRecords();
+
+        //班级列表
+        List<Classes> classesList = classesService.getAllClasses();
+
+        //循环设置学院->年级->班级 json关系
+        for (College college : collegeList) {
+            List<Grade> gradeList = new ArrayList<>(4);
+            for (int i = 0; i < 4; i++) {
+                gradeList.add(new Grade(i+1, GradeEnum.getName(i+1),null));
+            }
+            for (Grade grade : gradeList) {
+                //符合循环当前的学院和年级的 班级
+                List<Classes> classesList1 = new ArrayList<>();
+                for (Classes classes : classesList) {
+                    if (grade.getId() == (year - classes.getLevel()) && college.getId().equals(classes.getCollege())) {
+                        classesList1.add(classes);
+                    }
+                }
+                grade.setClassesList(classesList1);
+            }
+            college.setGradeList(gradeList);
+        }
 
         Map<String, Object> resultMap = new HashMap<>(4);
         resultMap.put("total", page.getTotal());
@@ -131,17 +159,30 @@ public class CollegeController {
 
             //删除学院下的教师
             QueryWrapper<Teacher> qw = new QueryWrapper<>();
-            qw.eq("college",id);
+            qw.eq("college", id);
+            List<Teacher> teacherList = teacherService.list(qw);
+            for (Teacher teacher : teacherList) {
+                roleService.deleteRoleUserByUid(teacher.getId());
+            }
             teacherService.remove(qw);
 
             //删除学院下的学生
             QueryWrapper<Student> sqw = new QueryWrapper<>();
-            qw.eq("college",id);
+            sqw.eq("college", id);
+
+            List<Student> studentList = studentService.list(sqw);
+            for (Student student : studentList) {
+                roleService.deleteRoleUserByUid(student.getId());
+            }
             studentService.remove(sqw);
 
             //删除学院下的管理员
             QueryWrapper<Admin> aqw = new QueryWrapper<>();
-            qw.eq("college",id);
+            aqw.eq("college", id);
+            List<Admin> adminList = adminService.list(aqw);
+            for (Admin admin : adminList) {
+                roleService.deleteRoleUserByUid(admin.getId());
+            }
             adminService.remove(aqw);
 
             return new Result<>("删除成功");
@@ -152,33 +193,35 @@ public class CollegeController {
 
     /**
      * 根据名称查询学院
+     *
      * @param name
      * @return
      */
     @RequiresPermissions("college:view")
-    @RequestMapping(value = "/college/{name}",method = RequestMethod.GET)
+    @RequestMapping(value = "/college/{name}", method = RequestMethod.GET)
     public Result<Object> getOneCollege(@PathVariable String name) {
         QueryWrapper<College> qw = new QueryWrapper<>();
-        qw.eq("name",name);
+        qw.eq("name", name);
         College one = this.collegeService.getOne(qw);
 
-        if(one != null) {
+        if (one != null) {
             //已存在学院
-            return new Result<>("查询成功",1);
-        }else {
-            return new Result<>("查询成功",0);
+            return new Result<>("查询成功", 1);
+        } else {
+            return new Result<>("查询成功", 0);
         }
     }
 
     /**
      * 注册时，列出所有学院
+     *
      * @return
      */
-    @RequestMapping(value = "/loadAllCollege",method = RequestMethod.GET)
+    @RequestMapping(value = "/loadAllCollege", method = RequestMethod.GET)
     public Result<Object> loadAllCollege() {
         List<College> collegeList = this.collegeService.list();
 
-        return new Result<>("查询成功",collegeList);
+        return new Result<>("查询成功", collegeList);
     }
 
 }
