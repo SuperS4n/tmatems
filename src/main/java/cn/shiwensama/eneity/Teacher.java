@@ -67,5 +67,4 @@ public class Teacher implements Serializable {
     @TableLogic
     private Integer deleted;
 
-
 }

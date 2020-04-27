@@ -3,6 +3,8 @@ package cn.shiwensama.service;
 import cn.shiwensama.eneity.Course;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  *  服务类
@@ -44,5 +46,12 @@ public interface CourseService extends IService<Course> {
      * @param uid 学生ID
      */
     void addScourse(int cid,String uid);
+
+    /**
+     * 根据学生ID 查出已选课程的ID
+     * @param uid
+     * @return
+     */
+    List<Integer> getPicked(String uid);
 
 }

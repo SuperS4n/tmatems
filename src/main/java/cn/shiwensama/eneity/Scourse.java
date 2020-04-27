@@ -39,6 +39,12 @@ public class Scourse implements Serializable {
     private String name;
 
     /**
+     * 所属学院
+     */
+    @TableField(exist = false)
+    private String collegeName;
+
+    /**
      * 任课教师名称
      */
     @TableField(exist = false)

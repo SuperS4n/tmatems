@@ -11,6 +11,7 @@ import cn.shiwensama.service.RoleService;
 import cn.shiwensama.service.TeacherService;
 import cn.shiwensama.token.JwtToken;
 import cn.shiwensama.utils.Result;
+import cn.shiwensama.vo.TeacherRes;
 import cn.shiwensama.vo.TeacherVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -23,10 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -244,9 +242,36 @@ public class TeacherController {
         Teacher one = this.teacherService.getOne(qw);
 
         Map<String, Object> resultMap = new HashMap<>(4);
-        resultMap.put("admin", one);
+        resultMap.put("teacher", one);
 
         return new Result<>("根据id查询教师成功", resultMap);
+    }
+
+    /**
+     * 根据学院查询教师
+     *
+     * @param id
+     * @return
+     */
+    @RequiresPermissions("teacher:view")
+    @RequestMapping(value = "/teacher/byCollege/{id}", method = RequestMethod.GET)
+    public Result<Object> getStudentByCollege(@PathVariable Integer id) {
+
+        QueryWrapper<Teacher> qw = new QueryWrapper<>();
+        qw.eq("college", id);
+
+        List<Teacher> teacherList = this.teacherService.list(qw);
+        List<TeacherRes> resultList = new ArrayList<>();
+        for (Teacher teacher : teacherList) {
+            resultList.add(new TeacherRes(teacher.getId(),teacher.getName()));
+        }
+
+
+        Map<String, Object> resultMap = new HashMap<>(4);
+
+        resultMap.put("teachers", resultList);
+
+        return new Result<>("根据学院查询教师成功", resultMap);
     }
 }
 

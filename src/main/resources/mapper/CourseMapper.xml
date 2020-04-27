@@ -12,6 +12,11 @@
         delete from tcourse where cid=#{value}
     </delete>
 
+    <!-- 根据学生ID 查出已选课程的集合-->
+    <select id="getPicked" resultType="java.lang.Integer">
+        select cid from scourse where uid=#{value}
+    </select>
+
     <!--  课程开启评论  -->
     <update id="openComment">
         update course set isok = 1 where id = #{value}

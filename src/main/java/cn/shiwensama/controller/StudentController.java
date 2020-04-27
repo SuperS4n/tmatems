@@ -258,6 +258,12 @@ public class StudentController {
         qw.eq("id", id);
         Student one = this.studentService.getOne(qw);
 
+        College college = collegeService.getById(one.getCollege());
+        Classes classes = classesService.getById(one.getClasses());
+
+        one.setCollegeName(college.getName());
+        one.setClassesName(classes.getName());
+
         Map<String, Object> resultMap = new HashMap<>(4);
         resultMap.put("student", one);
 

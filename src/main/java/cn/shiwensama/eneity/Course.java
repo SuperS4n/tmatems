@@ -3,6 +3,7 @@ package cn.shiwensama.eneity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -63,7 +64,7 @@ public class Course implements Serializable {
     private String teacherName;
 
     /**
-     * 备注
+     * 课程描述
      */
     private String remark;
 
@@ -75,6 +76,7 @@ public class Course implements Serializable {
     /**
      * 逻辑删除，0：未删除，1：已删除
      */
+    @TableLogic
     private Integer deleted;
 
 

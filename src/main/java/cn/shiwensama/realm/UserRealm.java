@@ -1,6 +1,7 @@
 package cn.shiwensama.realm;
 
 import cn.shiwensama.eneity.Admin;
+import cn.shiwensama.eneity.Classes;
 import cn.shiwensama.eneity.Student;
 import cn.shiwensama.eneity.Teacher;
 import cn.shiwensama.enums.ResultEnum;
@@ -45,6 +46,9 @@ public class UserRealm extends AuthorizingRealm {
 
     @Autowired
     private PermissionService permissionService;
+
+    @Autowired
+    private ClassesService classesService;
 
     @Override
     public boolean supports(AuthenticationToken token) {
@@ -160,6 +164,10 @@ public class UserRealm extends AuthorizingRealm {
                 QueryWrapper<Student> studentQueryWrapper = new QueryWrapper<>();
                 studentQueryWrapper.eq("username", username);
                 Student student = studentService.getOne(studentQueryWrapper);
+                //设置班级
+                Classes classes = classesService.getById(student.getClasses());
+                student.setLevel(classes.getLevel());
+
                 if (!student.getPassword().equals(password)) {
                     throw new AuthenticationException();
                 }

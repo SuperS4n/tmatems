@@ -3,6 +3,8 @@ package cn.shiwensama.mapper;
 import cn.shiwensama.eneity.Course;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
+import java.util.List;
+
 /**
  * <p>
  *  Mapper 接口
@@ -44,4 +46,11 @@ public interface CourseMapper extends BaseMapper<Course> {
      * @param uid 教师ID
      */
     void addScourse(int cid,String uid);
+
+    /**
+     * 根据学生ID 查出已选课程的集合
+     * @param uid
+     * @return
+     */
+    List<Integer> getPicked(String uid);
 }

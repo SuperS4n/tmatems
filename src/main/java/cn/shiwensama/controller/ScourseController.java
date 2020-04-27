@@ -5,6 +5,7 @@ import cn.shiwensama.eneity.Course;
 import cn.shiwensama.eneity.Scourse;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.exception.SysException;
+import cn.shiwensama.service.CollegeService;
 import cn.shiwensama.service.CourseService;
 import cn.shiwensama.service.ScourseService;
 import cn.shiwensama.service.TeacherService;
@@ -44,25 +45,31 @@ public class ScourseController {
     @Autowired
     private TeacherService teacherService;
 
+    @Autowired
+    private CollegeService collegeService;
+
     /**
-     * 学生选课
-     * @param id
-     * @param cid
+     * 查看学生已选课程
+     * 
      * @return
      */
-    @RequestMapping(value = "/scourse/{id}/{cid}", method = RequestMethod.PUT)
-    public Result<Object> addScourse(@PathVariable String id , int cid) {
+    @RequestMapping(value = "/getpicked/{uid}", method = RequestMethod.GET)
+    public Result<Object> getPicked(@PathVariable String uid) {
 
         try {
-            this.courseService.addScourse(cid,id);
-            return new Result<>("选课成功");
+
+            List<Integer> picked = courseService.getPicked(uid);
+            Map<String, Object> resultMap = new HashMap<>(4);
+            resultMap.put("picked",picked);
+            return new Result<>("查询成功",resultMap);
+
         } catch (Exception e) {
             throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
         }
     }
 
     /**
-     * 学生分页查询课程
+     * 学生分页查询学生已选课程
      *
      * @param scourseVo
      * @return
@@ -79,8 +86,13 @@ public class ScourseController {
         List<Scourse> scourses = page.getRecords();
         for (Scourse scours : scourses) {
             Course course = this.courseService.getById(scours.getCid());
+            //课程名字
             scours.setName(course.getName());
+            //教师名字
             scours.setTeacherName(teacherService.getById(course.getTeacher()).getName());
+            //所属学院
+            scours.setCollegeName(collegeService.getById(course.getCollege()).getName());
+            //备注
             scours.setRemark(course.getRemark());
         }
 

@@ -6,6 +6,8 @@ import cn.shiwensama.service.CourseService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  *  服务实现类
@@ -62,5 +64,15 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     @Override
     public void addScourse(int cid, String uid) {
         this.getBaseMapper().addScourse(cid,uid);
+    }
+
+    /**
+     * 根据学生ID 查出已选课程ID
+     * @param uid
+     * @return
+     */
+    @Override
+    public List<Integer> getPicked(String uid) {
+        return this.getBaseMapper().getPicked(uid);
     }
 }

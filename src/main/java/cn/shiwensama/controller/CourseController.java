@@ -3,6 +3,7 @@ package cn.shiwensama.controller;
 
 import cn.shiwensama.eneity.College;
 import cn.shiwensama.eneity.Course;
+import cn.shiwensama.eneity.Scourse;
 import cn.shiwensama.eneity.Teacher;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.exception.SysException;
@@ -20,9 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -58,6 +57,7 @@ public class CourseController {
         QueryWrapper<Course> qw = new QueryWrapper<>();
         qw.like(StringUtils.isNotBlank(courseVo.getName()), "name", courseVo.getName());
         qw.eq(courseVo.getLevel() != null,"level",courseVo.getLevel());
+        qw.eq(courseVo.getCollege() != null,"college",courseVo.getCollege());
 
 
         this.courseService.page(page, qw);
@@ -98,6 +98,8 @@ public class CourseController {
             //逻辑删除置为 0
             course.setDeleted(0);
 
+            course.setIsok(0);
+
             this.courseService.save(course);
 
             //往教师课表插入课程ID
@@ -129,7 +131,7 @@ public class CourseController {
     }
 
     /**
-     * 删除课程
+     * 根据ID删除课程
      *
      * @param id
      * @return
@@ -148,6 +150,35 @@ public class CourseController {
 
             //删除教师课表中的课程
             courseService.deleteTeacherCourse(id);
+
+            return new Result<>("删除成功");
+        } catch (Exception e) {
+            throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
+        }
+    }
+
+    /**
+     * 批量删除课程
+     *
+     * @param ids
+     * @return
+     */
+    @RequiresPermissions("course:delete")
+    @Transactional(rollbackFor = Exception.class)
+    @RequestMapping(value = "/course/multiDelete", method = RequestMethod.PUT)
+    public Result<Object> batchDeleteStudent(@RequestBody int[] ids) {
+
+        try {
+
+            for (int id : ids) {
+                courseService.removeById(id);
+
+                //删除学生课表中的课程
+                courseService.deleteStudentCourse(id);
+
+                //删除教师课表中的课程
+                courseService.deleteTeacherCourse(id);
+            }
 
             return new Result<>("删除成功");
         } catch (Exception e) {
@@ -193,6 +224,27 @@ public class CourseController {
         } catch (Exception e) {
             throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
         }
+    }
+
+    /**
+     * 学生选课
+     *
+     * @return
+     */
+    @RequestMapping(value = "/pickcourse", method = RequestMethod.POST)
+    @Transactional(rollbackFor = Exception.class)
+    public Result<Object> pickCourse(@RequestBody Scourse scourse) {
+
+        try {
+
+            courseService.addScourse(scourse.getCid(),scourse.getUid());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new SysException(ResultEnum.ERROR.getCode(),"选课失败");
+        }
+
+        return new Result<>("选课成功");
     }
 
 }
