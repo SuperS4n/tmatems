@@ -17,4 +17,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ScourseServiceImpl extends ServiceImpl<ScourseMapper, Scourse> implements ScourseService {
 
+    @Override
+    public void isReview(Integer cid) {
+        this.baseMapper.isReview(cid);
+    }
 }

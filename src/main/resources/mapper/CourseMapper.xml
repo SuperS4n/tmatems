@@ -21,6 +21,10 @@
     <update id="openComment">
         update course set isok = 1 where id = #{value}
     </update>
+    <!-- 课程关闭评论 -->
+    <update id="closeComment">
+        update course set isok = 0 where id = #{value}
+    </update>
 
     <!--  课程插入教师课表  -->
     <insert id="addTcourse">

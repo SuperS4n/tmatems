@@ -207,7 +207,7 @@ public class CourseController {
     }
 
     /**
-     * 课程开启评论
+     * 课程开启或关闭评论
      *
      * @param id
      * @return
@@ -215,12 +215,19 @@ public class CourseController {
     @RequiresPermissions("course:update")
     @RequestMapping(value = "/course/{id}", method = RequestMethod.PUT)
     @Transactional(rollbackFor = Exception.class)
-    public Result<Object> openComment(@PathVariable int id) {
+    public Result<Object> openOrCloseComment(@PathVariable int id) {
+        Course course = courseService.getById(id);
 
         try {
-            this.courseService.openComment(id);
-            Course course = this.courseService.getById(id);
-            return new Result<>(course.getName()+"教评开启");
+            if(course.getIsok() == 1) {
+                //关闭评论
+                courseService.closeComment(id);
+                return new Result<>(course.getName()+"教评关闭");
+            }else {
+                courseService.openComment(id);
+                return new Result<>(course.getName()+"教评开启");
+            }
+
         } catch (Exception e) {
             throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
         }

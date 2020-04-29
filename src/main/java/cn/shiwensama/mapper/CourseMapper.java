@@ -34,6 +34,12 @@ public interface CourseMapper extends BaseMapper<Course> {
     void openComment(int cid);
 
     /**
+     * 关闭评论
+     * @param cid
+     */
+    void closeComment(int cid);
+
+    /**
      * 添加教师课表
      * @param cid 课程编号
      * @param uid 教师ID

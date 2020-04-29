@@ -33,6 +33,11 @@ public class Scourse implements Serializable {
     private String uid;
 
     /**
+     * 是否评论
+     */
+    private Integer isreview;
+
+    /**
      * 课程名称
      */
     @TableField(exist = false)

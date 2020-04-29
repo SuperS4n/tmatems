@@ -47,6 +47,15 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
     }
 
     /**
+     * 关闭评论
+     * @param cid
+     */
+    @Override
+    public void closeComment(int cid) {
+        this.getBaseMapper().closeComment(cid);
+    }
+
+    /**
      * 添加教师课表
      * @param cid 课程编号
      * @param uid 教师ID

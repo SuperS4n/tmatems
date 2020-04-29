@@ -13,4 +13,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ScourseService extends IService<Scourse> {
 
+    /**
+     * 更新 已评论
+     * @param cid
+     */
+    void isReview(Integer cid);
 }

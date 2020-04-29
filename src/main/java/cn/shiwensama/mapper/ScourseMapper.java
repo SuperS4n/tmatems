@@ -13,4 +13,10 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ScourseMapper extends BaseMapper<Scourse> {
 
+    /**
+     * 更新 已评论
+     * @param cid
+     */
+    void isReview(Integer cid);
+
 }
