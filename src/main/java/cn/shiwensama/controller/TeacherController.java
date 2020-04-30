@@ -1,14 +1,14 @@
 package cn.shiwensama.controller;
 
 
+import cn.shiwensama.eneity.Ccomment;
 import cn.shiwensama.eneity.College;
+import cn.shiwensama.eneity.Course;
 import cn.shiwensama.eneity.Teacher;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.enums.StateEnum;
 import cn.shiwensama.exception.SysException;
-import cn.shiwensama.service.CollegeService;
-import cn.shiwensama.service.RoleService;
-import cn.shiwensama.service.TeacherService;
+import cn.shiwensama.service.*;
 import cn.shiwensama.token.JwtToken;
 import cn.shiwensama.utils.Result;
 import cn.shiwensama.vo.TeacherRes;
@@ -45,6 +45,12 @@ public class TeacherController {
 
     @Autowired
     private CollegeService collegeService;
+
+    @Autowired
+    private CourseService courseService;
+
+    @Autowired
+    private CcommentService ccommentService;
 
     /**
      * 登录方法
@@ -241,6 +247,10 @@ public class TeacherController {
         qw.eq("id", id);
         Teacher one = this.teacherService.getOne(qw);
 
+        //设置教师学院
+        College college = collegeService.getById(one.getCollege());
+        one.setCollegeName(college.getName());
+
         Map<String, Object> resultMap = new HashMap<>(4);
         resultMap.put("teacher", one);
 
@@ -272,6 +282,51 @@ public class TeacherController {
         resultMap.put("teachers", resultList);
 
         return new Result<>("根据学院查询教师成功", resultMap);
+    }
+
+    /**
+     * 教师 分页查询课程
+     *
+     * @return
+     */
+    @RequiresPermissions("course:view")
+    @RequestMapping(value = "/getcourse/{uid}/{pagenum}/{pagesize}", method = RequestMethod.GET)
+    public Result<Object> getAllCourse(@PathVariable String uid,
+                                       @PathVariable int pagenum,
+                                       @PathVariable int pagesize) {
+        IPage<Course> page = new Page<>(pagenum, pagesize);
+
+        QueryWrapper<Course> qw = new QueryWrapper<>();
+        qw.eq("teacher",uid);
+
+        this.courseService.page(page, qw);
+
+
+        List<Course> courses = page.getRecords();
+        for (Course course : courses) {
+            //循环设置学院名称
+            Integer courseCollege = course.getCollege();
+            if (courseCollege != null) {
+                College college = collegeService.getById(courseCollege);
+                course.setCollegeName(college.getName());
+            }
+            QueryWrapper<Ccomment> qw1 = new QueryWrapper<>();
+            qw1.eq("cid",course.getId());
+
+            List<String> suggestList = new ArrayList<>();
+            List<Ccomment> ccommentList = ccommentService.list(qw1);
+            for (Ccomment ccomment : ccommentList) {
+                suggestList.add(ccomment.getSuggest());
+            }
+
+            //拿到学生对课程的建议与意见
+            course.setSuggest(suggestList);
+        }
+
+        Map<String, Object> resultMap = new HashMap<>(4);
+        resultMap.put("total",page.getTotal());
+        resultMap.put("courses", page.getRecords());
+        return new Result<>("分页查询课程成功", resultMap);
     }
 }
 

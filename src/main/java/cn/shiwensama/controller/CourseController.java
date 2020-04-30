@@ -58,7 +58,7 @@ public class CourseController {
         qw.like(StringUtils.isNotBlank(courseVo.getName()), "name", courseVo.getName());
         qw.eq(courseVo.getLevel() != null,"level",courseVo.getLevel());
         qw.eq(courseVo.getCollege() != null,"college",courseVo.getCollege());
-
+        qw.eq(StringUtils.isNotBlank(courseVo.getTeacher()),"teacher",courseVo.getTeacher());
 
         this.courseService.page(page, qw);
 

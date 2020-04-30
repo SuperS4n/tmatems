@@ -103,7 +103,6 @@ public class CcommentController {
         qw.eq("cid",cid);
 
         List<Ccomment> ccommentList = ccommentService.list(qw);
-        List<String> suggestList = new ArrayList<>();
         List<Integer> question1List = new ArrayList<>();
         List<Integer> question2List = new ArrayList<>();
         List<Integer> question3List = new ArrayList<>();
@@ -111,7 +110,6 @@ public class CcommentController {
         List<Integer> question5List = new ArrayList<>();
 
         for (Ccomment ccomment : ccommentList) {
-            suggestList.add(ccomment.getSuggest());
             question1List.add(ccomment.getQuestion1());
             question2List.add(ccomment.getQuestion2());
             question3List.add(ccomment.getQuestion3());
@@ -122,7 +120,6 @@ public class CcommentController {
 
         Map<String, Object> resultMap = new HashMap<>(10);
         resultMap.put("number",ccommentList.size());
-        resultMap.put("suggestList",suggestList);
         resultMap.put("question1List",question1List);
         resultMap.put("question2List",question2List);
         resultMap.put("question3List",question3List);

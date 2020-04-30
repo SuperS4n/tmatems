@@ -72,7 +72,7 @@ public class JwtCredentialsMatcher implements CredentialsMatcher {
                 if (teacher.getPassword().equals(password)) {
                     //密码正确 设置token
                     Map<String, Object> map = new HashMap<>(4);
-                    map.put("student", teacher);
+                    map.put("teacher", teacher);
                     map.put("role", StateEnum.TEACHER.getCode());
                     //设置token
                     String jwt = jwtUtils.createJWT(teacher.getId(), teacher.getUsername(), map);

@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -72,6 +73,12 @@ public class Course implements Serializable {
      * 是否开启评论 0：未开启，1：开启
      */
     private Integer isok;
+
+    /**
+     * 学生对改课程的建议与意见
+     */
+    @TableField(exist = false)
+    private List<String> suggest;
 
     /**
      * 逻辑删除，0：未删除，1：已删除
