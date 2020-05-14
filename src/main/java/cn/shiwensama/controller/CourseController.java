@@ -102,9 +102,6 @@ public class CourseController {
 
             this.courseService.save(course);
 
-            //往教师课表插入课程ID
-            this.courseService.addTcourse(course.getId(),course.getTeacher());
-
             return new Result<>("添加成功");
         } catch (Exception e) {
             throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");

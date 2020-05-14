@@ -25,6 +25,7 @@ mybatis-plus:
       logic-delete-value: 1 # 逻辑已删除值(默认为 1)
       logic-not-delete-value: 0 # 逻辑未删除值（默认 0）
     banner: true
+
 # 解决中文乱码的问题
   spring:
     http:
@@ -33,3 +34,8 @@ mybatis-plus:
         charset: UTF-8
         enabled: true
         uri-encoding: UTF-8
+fastdfs:
+  connect_timeout_in_seconds: 120
+  network_timeout_in_seconds: 120
+  charset: UTF-8
+  tracker_servers: 192.168.89.131:22122 #多个 trackerServer中间以逗号分隔
