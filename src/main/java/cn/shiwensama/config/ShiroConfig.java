@@ -23,7 +23,6 @@ import java.util.Map;
  **/
 @Configuration
 public class ShiroConfig {
-
     /**
      * 一、shiro过滤器工厂
      * 创建ShiroFilterFactoryBean
@@ -48,7 +47,6 @@ public class ShiroConfig {
          *  role：该资源必须得到角色权限才可以访问
          */
         Map<String, String> filterMap = Maps.newHashMap();
-
         filterMap.put("/registered","anon");
         filterMap.put("/registered/*","anon");
         filterMap.put("/*/login", "anon");

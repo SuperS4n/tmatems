@@ -53,15 +53,12 @@ public class CourseController {
     @RequestMapping(value = "/course", method = RequestMethod.GET)
     public Result<Object> getAllCourse(CourseVo courseVo) {
         IPage<Course> page = new Page<>(courseVo.getPagenum(), courseVo.getPagesize());
-
         QueryWrapper<Course> qw = new QueryWrapper<>();
         qw.like(StringUtils.isNotBlank(courseVo.getName()), "name", courseVo.getName());
         qw.eq(courseVo.getLevel() != null,"level",courseVo.getLevel());
         qw.eq(courseVo.getCollege() != null,"college",courseVo.getCollege());
         qw.eq(StringUtils.isNotBlank(courseVo.getTeacher()),"teacher",courseVo.getTeacher());
-
         this.courseService.page(page, qw);
-
         //循环设置学院名称和教师名字
         List<Course> courses = page.getRecords();
         for (Course course : courses) {
@@ -70,12 +67,10 @@ public class CourseController {
             if (courseCollege != null && teacherId != null) {
                 College college = collegeService.getById(courseCollege);
                 Teacher teacher = teacherService.getById(teacherId);
-
                 course.setCollegeName(college.getName());
                 course.setTeacherName(teacher.getName());
             }
         }
-
         Map<String, Object> resultMap = new HashMap<>(4);
         resultMap.put("total", page.getTotal());
         resultMap.put("courses", page.getRecords());
@@ -93,7 +88,6 @@ public class CourseController {
     @RequestMapping(value = "/course", method = RequestMethod.POST)
     public Result<Object> addCourse(@RequestBody Course course) {
         //判断是否重名 交由前端处理
-
         try {
             //逻辑删除置为 0
             course.setDeleted(0);
@@ -137,17 +131,11 @@ public class CourseController {
     @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/course/{id}", method = RequestMethod.DELETE)
     public Result<Object> deleteCourse(@PathVariable int id) {
-
         try {
             //删除课程
             courseService.removeById(id);
-
             //删除学生课表中的课程
             courseService.deleteStudentCourse(id);
-
-            //删除教师课表中的课程
-            courseService.deleteTeacherCourse(id);
-
             return new Result<>("删除成功");
         } catch (Exception e) {
             throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
@@ -224,7 +212,6 @@ public class CourseController {
                 courseService.openComment(id);
                 return new Result<>(course.getName()+"教评开启");
             }
-
         } catch (Exception e) {
             throw new SysException(ResultEnum.ERROR.getCode(), "操作失败,接口异常");
         }

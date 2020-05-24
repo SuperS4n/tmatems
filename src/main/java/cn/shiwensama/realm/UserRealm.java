@@ -71,10 +71,11 @@ public class UserRealm extends AuthorizingRealm {
         Object principal = principals.getPrimaryPrincipal();
         //System.out.println(principal);
         GetPerCodes getPerCodes = new GetPerCodes();
-
         if (principal != null) {
             if (principal instanceof Admin) {
-                List<String> perCodes = getPerCodes.doGetPerCodes(((Admin) principal).getId(), roleService, permissionService);
+                List<String> perCodes = getPerCodes.doGetPerCodes(((Admin) principal).getId(),
+                        roleService,
+                        permissionService);
                 if (((Admin) principal).getCollege() == 0) {
                     //超级管理员拥有全部权限
                     authorizationInfo.addStringPermission("*:*");
@@ -156,7 +157,6 @@ public class UserRealm extends AuthorizingRealm {
                 if (!admin.getPassword().equals(password)) {
                     throw new AuthenticationException();
                 }
-
                 return new SimpleAuthenticationInfo(admin, jwtToken, this.getName());
             }
             //学生登录
@@ -167,11 +167,9 @@ public class UserRealm extends AuthorizingRealm {
                 //设置班级
                 Classes classes = classesService.getById(student.getClasses());
                 student.setLevel(classes.getLevel());
-
                 if (!student.getPassword().equals(password)) {
                     throw new AuthenticationException();
                 }
-
                 return new SimpleAuthenticationInfo(student, jwtToken, this.getName());
             }
             //教师登录

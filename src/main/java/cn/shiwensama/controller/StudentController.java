@@ -62,18 +62,16 @@ public class StudentController {
     @RequestMapping(value = "/student/login", method = RequestMethod.POST)
     public Result<Object> login(@RequestBody Student student) {
         //1.先判断前端传过来的登录参数是否正确
-        if (student == null || StringUtils.isBlank(student.getUsername()) || StringUtils.isBlank(student.getPassword())) {
+        if (student == null
+                || StringUtils.isBlank(student.getUsername())
+                || StringUtils.isBlank(student.getPassword())) {
             return new Result<>(ResultEnum.PARAMS_ERROR.getCode(), "用户名或密码错误！");
         }
-
         //2.启用shiro登录
         Subject subject = SecurityUtils.getSubject();
-
-        JwtToken jwtToken = new JwtToken(student.getUsername(),student.getPassword(),StateEnum.STUDENT.getCode());
+        JwtToken jwtToken = new JwtToken(student.getUsername(), student.getPassword(), StateEnum.STUDENT.getCode());
         subject.login(jwtToken);
-
         return new Result<>("登录成功", jwtToken.getToken());
-
     }
 
 
@@ -90,8 +88,8 @@ public class StudentController {
 
         QueryWrapper<Student> qw = new QueryWrapper<>();
         qw.like(StringUtils.isNotBlank(studentVo.getName()), "name", studentVo.getName());
-        qw.eq(null != studentVo.getCollege(),"college",studentVo.getCollege());
-        qw.eq(null != studentVo.getClasses(),"classes",studentVo.getClasses());
+        qw.eq(null != studentVo.getCollege(), "college", studentVo.getCollege());
+        qw.eq(null != studentVo.getClasses(), "classes", studentVo.getClasses());
 
         this.studentService.page(page, qw);
 
@@ -121,7 +119,7 @@ public class StudentController {
     }
 
     /**
-     * 添加学生，注册接口
+     * 学生注册接口
      *
      * @param student
      * @return
@@ -130,7 +128,6 @@ public class StudentController {
     @RequestMapping(value = "/registered", method = RequestMethod.POST)
     public Result<Object> addStudent(@RequestBody Student student) {
         //判断是否重名 交由前端处理
-
         try {
             //逻辑删除置为 0
             student.setDeleted(0);
@@ -154,7 +151,6 @@ public class StudentController {
     @RequestMapping(value = "/student", method = RequestMethod.PUT)
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> updateStudent(@RequestBody Student student) {
-
         try {
             this.studentService.updateById(student);
             return new Result<>("修改成功");
@@ -173,7 +169,6 @@ public class StudentController {
     @RequestMapping(value = "/student/resetPassword", method = RequestMethod.PUT)
     @Transactional(rollbackFor = Exception.class)
     public Result<Object> resetPassword(@RequestBody Student student) {
-
         try {
             this.studentService.updateById(student);
             return new Result<>("重置密码成功");

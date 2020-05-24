@@ -67,10 +67,12 @@ public class UploadService {
             StorageServer storeStorage = trackerClient.getStoreStorage(trackerServer);
             // 4. 获取storageClient
             StorageClient1 storageClient1 = new StorageClient1(trackerServer, storeStorage);
-            // 5. 上传文件 (文件字节, 文件扩展名, )
+            // 5. 上传文件 (文件字节, 文件扩展名)
+
             // 5.1 获取文件扩展名
             String originalFilename = multipartFile.getOriginalFilename();
             String extName = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+
             // 5.2 上传
             return storageClient1.upload_file1(multipartFile.getBytes(), extName, null);
         } catch (Exception e) {

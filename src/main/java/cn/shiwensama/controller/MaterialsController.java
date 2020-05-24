@@ -97,7 +97,6 @@ public class MaterialsController {
     @RequestMapping(value = "/materials", method = RequestMethod.POST)
     public Result<Object> addTeacher(@RequestBody Materials materials) {
         //判断是否重名 交由前端处理
-
         try {
             //逻辑删除置为 0
             materials.setDeleted(0);

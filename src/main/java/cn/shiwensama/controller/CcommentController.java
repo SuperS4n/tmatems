@@ -98,7 +98,6 @@ public class CcommentController {
     @RequiresPermissions("ccomment:view")
     @RequestMapping(value = "/ccomment/{cid}", method = RequestMethod.GET)
     public Result<Object> getAllCourse(@PathVariable Integer cid) {
-
         QueryWrapper<Ccomment> qw = new QueryWrapper<>();
         qw.eq("cid",cid);
 
