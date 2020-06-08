@@ -91,7 +91,7 @@ public class CourseController {
         try {
             //逻辑删除置为 0
             course.setDeleted(0);
-
+            course.setNumber(0);
             course.setIsok(0);
 
             this.courseService.save(course);

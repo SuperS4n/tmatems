@@ -71,15 +71,11 @@ public class CcommentController {
     @Transactional(rollbackFor = Exception.class)
     @RequestMapping(value = "/ccomment", method = RequestMethod.POST)
     public Result<Object> addCcomment(@RequestBody Ccomment ccomment) {
-        //判断是否重名 交由前端处理
-
         try {
             //逻辑删除置为 0
             ccomment.setDeleted(0);
             ccomment.setTime(new Date());
-
             ccommentService.save(ccomment);
-
             //更新 数据库中 已评论
             scourseService.isReview(ccomment.getCid());
 

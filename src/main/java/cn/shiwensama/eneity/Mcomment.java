@@ -9,7 +9,6 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * <p>
@@ -17,54 +16,46 @@ import java.util.List;
  * </p>
  *
  * @author supers4n
- * @since 2020-05-01
+ * @since 2020-05-25
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class Materials implements Serializable {
+public class Mcomment implements Serializable {
 
     private static final long serialVersionUID=1L;
 
-
+    /**
+     * ID
+     */
     private String id;
 
     /**
-     * 课程ID
+     * 评论人ID
      */
-    private Integer cid;
+    private String uid;
 
     /**
-     * 上传的文件名
+     * 评论材料ID
      */
-    private String name;
+    private String mid;
 
     /**
-     * 上传时间
+     * 评论时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date time;
 
     /**
-     * 下载地址
+     * 评论内容
      */
-    private String url;
+    private String content;
 
     /**
-     * 备注
-     */
-    private String remark;
-
-    /**
-     * 已下载人数
-     */
-    private Integer number;
-
-    /**
-     * 教学材料评论
+     * 评论人
      */
     @TableField(exist = false)
-    private List<Mcomment> mcommentList;
+    private String name;
 
     /**
      * 逻辑删除

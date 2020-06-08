@@ -2,9 +2,13 @@ package cn.shiwensama.controller;
 
 
 import cn.shiwensama.eneity.Materials;
+import cn.shiwensama.eneity.Mcomment;
+import cn.shiwensama.eneity.Student;
 import cn.shiwensama.enums.ResultEnum;
 import cn.shiwensama.exception.SysException;
 import cn.shiwensama.service.MaterialsService;
+import cn.shiwensama.service.McommentService;
+import cn.shiwensama.service.StudentService;
 import cn.shiwensama.utils.Result;
 import cn.shiwensama.utils.UploadService;
 import cn.shiwensama.vo.MaterialsVo;
@@ -19,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,6 +42,12 @@ public class MaterialsController {
 
     @Autowired
     private UploadService uploadService;
+
+    @Autowired
+    private McommentService mcommentService;
+
+    @Autowired
+    private StudentService studentService;
 
     /**
      * 文件上传
@@ -100,6 +111,7 @@ public class MaterialsController {
         try {
             //逻辑删除置为 0
             materials.setDeleted(0);
+            materials.setNumber(0);
             //设置时间
             materials.setTime(new Date());
 
@@ -112,7 +124,7 @@ public class MaterialsController {
     }
 
     /**
-     * 分页查询课程
+     * 分页查询教学材料
      *
      * @param materialsVo
      * @return
@@ -127,11 +139,22 @@ public class MaterialsController {
 
         this.materialsService.page(page, qw);
 
+        List<Materials> materialsList = page.getRecords();
+        for (Materials materials : materialsList) {
+            QueryWrapper<Mcomment> qw2 = new QueryWrapper<>();
+            qw2.eq("mid",materials.getId());
+            List<Mcomment> mcommentList = mcommentService.list(qw2);
+            for (Mcomment mcomment : mcommentList) {
+                Student student = studentService.getById(mcomment.getUid());
+                mcomment.setName(student.getName());
+            }
+            materials.setMcommentList(mcommentList);
+        }
 
         Map<String, Object> resultMap = new HashMap<>(4);
         resultMap.put("total", page.getTotal());
         resultMap.put("materials", page.getRecords());
-        return new Result<>("分页查询课程成功", resultMap);
+        return new Result<>("分页查询教学材料成功", resultMap);
     }
 
 }

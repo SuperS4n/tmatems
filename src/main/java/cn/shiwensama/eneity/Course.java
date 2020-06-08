@@ -75,6 +75,11 @@ public class Course implements Serializable {
     private Integer isok;
 
     /**
+     * 已选课人数
+     */
+    private Integer number;
+
+    /**
      * 学生对改课程的建议与意见
      */
     @TableField(exist = false)
